@@ -13,7 +13,7 @@ import java.nio.channels.SocketChannel;
 public class TCP {
 	ServerSocketChannel serverSocket;
 	SocketChannel clientSocket;
-	int port = 12347;
+	final int port = 12347;
 	
 	public TCP(String ip, int port) {
 		connectClient(ip, port);
@@ -29,7 +29,6 @@ public class TCP {
 			System.out.println("ERREUR connectClient : " + ip + ":" + port);
 			e.printStackTrace();
 		}
-
 	}
 
 	// For Client
@@ -64,24 +63,58 @@ public class TCP {
 			e.printStackTrace();
 		}
 	}
-
-	// For Client
-	public void sendSerializedClass(String path) {
+	
+	public boolean sendMessageToClient(ByteBuffer message){
+		return true;
+	}
+	
+	//TODO
+	public boolean introduction(){
+		return true;
 	}
 
-	// For Client and Server
+	//TODO
+	public boolean classeSimple(){
+		return true;
+	}
+	
+	//TODO
+	public boolean classeTask(){
+		return true;
+	}
 
+	//TODO
 	// For Client & Servers
-	public void ack() {
+	public boolean ack() {
+		return true;
+	}
+	
+	//TODO
+	public boolean serializedTask(){
+		return true;
 	}
 
-	// For Servers
+	//TODO	
+	public boolean execute(){
+		return true;
+	}
+
+	//TODO
+	public boolean error(){
+		return false;
+	}
+
+	//TODO
+	public boolean result(){
+		return false;
+	}
+
+	//TODO
+	public boolean end(){
+		return false;
+	}
+
+	//TODO
 	public void sendResult() {
 	}
-
-	// For Clients
-	public void endOfTask() {
-
-	}
-
 }
