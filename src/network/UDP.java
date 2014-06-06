@@ -4,18 +4,18 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
-import java.util.Scanner;
 
 public class UDP {
 	private HashMap<InetSocketAddress, Integer> networkList = new HashMap<InetSocketAddress, Integer>();
 	private Thread listenerThread;
-	private DatagramChannel serverSocket;
+	private static DatagramChannel hostSocket;
 
 	public UDP() {
 		try {
-			serverSocket = DatagramChannel.open();
-			serverSocket.bind(new InetSocketAddress(12357));
+			hostSocket = DatagramChannel.open();
+			hostSocket.bind(new InetSocketAddress(12357));
 		} catch (IOException e) {
 			System.out.println("ERREUR PINGER");
 			e.printStackTrace();
@@ -29,9 +29,8 @@ public class UDP {
 		try {
 			ByteBuffer buff = Message.bufferFromString("WHOISONLINE");
 			buff.flip();
-			serverSocket.send(buff,new InetSocketAddress("255.255.255.255",12357));
-			buff.clear();
-			System.out.println(buff.asCharBuffer().toString()+" sent to 255.255.255.255/12357.");
+			hostSocket.send(buff, new InetSocketAddress("255.255.255.255",
+					12357));
 		} catch (IOException e) {
 			System.out.println("ERREUR PINGER");
 			e.printStackTrace();
@@ -41,15 +40,14 @@ public class UDP {
 	/*
 	 * Answer to a ping request
 	 */
-	public static void pingAnswer(DatagramChannel servSocket,
-			InetSocketAddress remote) {
+	public static void pingAnswer(InetSocketAddress remote) {
 		try {
 			// 0 si libre, 1 si busy TODO : Busy
-			ByteBuffer buff = ByteBuffer.allocate(100);
+			ByteBuffer buff = ByteBuffer.allocate(3);
 			buff.put((byte) 1);
-			buff.putShort(1, (short) 0);
+			buff.putShort((short) 0);
 			buff.flip();
-			servSocket.send(buff, remote);
+			hostSocket.send(buff, remote);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -61,21 +59,30 @@ public class UDP {
 	private Thread listener = new Thread() {
 		public void run() {
 			System.out.println("LISTENER EN ATTENTE");
-			ByteBuffer buff = ByteBuffer.allocate(256000);
+			ByteBuffer buff = ByteBuffer.allocate(256);
 			while (true) {
 				try {
-					InetSocketAddress remote = (InetSocketAddress) serverSocket
+					InetSocketAddress remote = (InetSocketAddress) hostSocket
 							.receive(buff);
-					String receivedString = buff.asCharBuffer().toString();
-					System.out.println("Received FROM " + remote + " : "
-							+ receivedString);
-					int busy = buff.get();
-					int numberTasks = buff.getShort(1);
-					int[] tasks = new int[numberTasks];
-					for (int i = 0; i < numberTasks; i++) {
-						tasks[i] = buff.getShort(3 + 2 * i);
+					byte[] tab = new byte[buff.position()];
+					buff.flip();
+					buff.get(tab);
+					String received = new String(tab, StandardCharsets.UTF_16BE);
+					buff.rewind();
+					if (received.startsWith("WHOISONLINE")) {
+						System.out.println("WHOISONLINE RECU");
+						pingAnswer(remote);
+					} else {
+						int busy = buff.get();
+						int numberTasks = buff.getShort();
+						int[] tasks = new int[numberTasks];
+						for (int i = 0; i < numberTasks; i++) {
+							tasks[i] = buff.getShort(3 + 2 * i);
+						}
+						networkList.put(remote, busy);
+						System.out.println("RECEIVED ANSWERS FROM PING " + busy
+								+ " " + numberTasks);
 					}
-					networkList.put(remote, busy);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
