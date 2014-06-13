@@ -6,17 +6,18 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
+import java.nio.channels.DatagramChannel;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 
 public class TCP {
-	ServerSocketChannel serverSocket;
-	SocketChannel clientSocket;
-	final int port = 12347;
-	
+	public ServerSocketChannel serverSocket;
+	public SocketChannel clientSocket;
+	final static int port = 12347;
+
 	public TCP(String ip, int port) {
-		connectClient(ip, port);
+		// connectClient(ip, port);
 	}
 
 	// For client: connect to server
@@ -63,58 +64,69 @@ public class TCP {
 			e.printStackTrace();
 		}
 	}
-	
-	public boolean sendMessageToClient(ByteBuffer message){
-		return true;
+
+	public boolean sendMessageToClient(ByteBuffer message) {
+		try {
+			SocketChannel clientSocket = SocketChannel.open();
+			InetSocketAddress local = new InetSocketAddress(0);
+			clientSocket.bind(local);
+			InetSocketAddress remote = new InetSocketAddress("remote", 1212);
+			clientSocket.connect(remote);
+			clientSocket.write(message);
+			return true;
+		} catch (Exception e) {
+		}
+		return false;
 	}
-	
-	//TODO
-	public boolean introduction(){
+
+	// TODO
+	public boolean introduction() {
+		
 		return true;
 	}
 
-	//TODO
-	public boolean classeSimple(){
-		return true;
-	}
-	
-	//TODO
-	public boolean classeTask(){
+	// TODO
+	public boolean classeSimple() {
 		return true;
 	}
 
-	//TODO
+	// TODO
+	public boolean classeTask() {
+		return true;
+	}
+
+	// TODO
 	// For Client & Servers
 	public boolean ack() {
 		return true;
 	}
-	
-	//TODO
-	public boolean serializedTask(){
+
+	// TODO
+	public boolean serializedTask() {
 		return true;
 	}
 
-	//TODO	
-	public boolean execute(){
+	// TODO
+	public boolean execute() {
 		return true;
 	}
 
-	//TODO
-	public boolean error(){
+	// TODO
+	public boolean error() {
 		return false;
 	}
 
-	//TODO
-	public boolean result(){
+	// TODO
+	public boolean result() {
 		return false;
 	}
 
-	//TODO
-	public boolean end(){
+	// TODO
+	public boolean end() {
 		return false;
 	}
 
-	//TODO
+	// TODO
 	public void sendResult() {
 	}
 }
