@@ -29,9 +29,10 @@ public class UDP {
 
 	public void whoIsOnline() {
 		try {
-			ByteBuffer buff = Message.bufferFromString("WHOISONLINE");
-			buff.flip();
-			hostSocket.send(buff, new InetSocketAddress("255.255.255.255",
+			ByteBuffer writeBuff = ByteBuffer.allocate(22);
+			Message.bufferFromString(writeBuff, "WHOISONLINE");
+			writeBuff.flip();
+			hostSocket.send(writeBuff, new InetSocketAddress("255.255.255.255",
 					12357));
 		} catch (IOException e) {
 			System.out.println("ERREUR PINGER");

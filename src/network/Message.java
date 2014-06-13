@@ -9,26 +9,17 @@ import java.nio.file.Paths;
 
 public class Message {
 
-	public static ByteBuffer bufferFromString(String s)
-			throws CharacterCodingException {
-		ByteBuffer buff = ByteBuffer.allocate(2 * s.length());
-		buff.put(s.getBytes(StandardCharsets.UTF_16BE));
-		return buff;
-	}
-	
-	public static void bufferFromString(String s, ByteBuffer bf)
-			throws CharacterCodingException {
-		bf.clear();
-		bf.rewind();
-		bf.put(s.getBytes(StandardCharsets.UTF_16BE));
+	public static void bufferFromString(ByteBuffer writeBuff, String message) {
+		writeBuff.put(message.getBytes(StandardCharsets.UTF_16BE));
 	}
 
-	public static ByteBuffer bufferFromClass(String path) {
+	public static ByteBuffer bufferFromClass(String path, ByteBuffer writeBuff) {
 		FileChannel fc;
 		try {
 			fc = FileChannel.open(Paths.get(path));
+			writeBuff.putLong(fc.size());
 			ByteBuffer fileBuff = fc.map(FileChannel.MapMode.READ_ONLY, 0,
-					fc.size());
+					writeBuff.capacity());
 			fc.close();
 			return fileBuff;
 		} catch (IOException e) {
