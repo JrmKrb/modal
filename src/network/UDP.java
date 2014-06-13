@@ -43,6 +43,7 @@ public class UDP {
 	public static void pingAnswer(InetSocketAddress remote) {
 		try {
 			// 0 si libre, 1 si busy TODO : Busy
+			// TODO taskID
 			ByteBuffer buff = ByteBuffer.allocate(3);
 			buff.put((byte) 1);
 			buff.putShort((short) 0);
