@@ -26,6 +26,7 @@ public class TCP {
 	public SocketChannel clientSocket;
 
 	private final static int PORT = 12347;
+	private final static int TIMEOUTLENGTH = 4;
 	private final static int TIMEOUT = 30;
 
 	private static ByteBuffer readBuff;
@@ -33,6 +34,12 @@ public class TCP {
 
 	private short taskID;
 
+	/**
+	 * 
+	 * @param ip
+	 * @param port
+	 * @param taskID
+	 */
 	public TCP(String ip, int port, short taskID) {
 		// connectClient
 		// writeBuff = ByteBuffer.allocate(512000000);
@@ -141,7 +148,8 @@ public class TCP {
 	public void execute() {
 		writeBuff.put(EXEC);
 		writeBuff.putShort(taskID);
-		writeBuff.putLong(TIMEOUT);
+		writeBuff.putLong(TIMEOUTLENGTH);
+		writeBuff.putInt(TIMEOUT);
 	}
 
 	/**
@@ -165,6 +173,9 @@ public class TCP {
 		try {
 			writeBuff.put(RESULT);
 			writeBuff.putShort(taskID);
+
+			//TODO : envoyer le buffer avec les données TYPE, TASK_ID, LENGTH avant l'objet
+			//TODO : Récupérer LENGTH depuis l'objet.
 			clientSocket.socket().getOutputStream().write(serialize(obj));
 		} catch (IOException e) {
 			System.out.println("ERREUR ENVOI RESULTAT SERIALISE");
@@ -180,6 +191,11 @@ public class TCP {
 		writeBuff.putShort(taskID);
 	}
 
+	/**
+	 * 
+	 * @param o
+	 * @return
+	 */
 	public static byte[] serialize(Serializable o) {
 		try {
 			ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -192,6 +208,11 @@ public class TCP {
 		return null;
 	}
 
+	/**
+	 * 
+	 * @param buff
+	 * @return
+	 */
 	public static Serializable unSerialize(ByteBuffer buff) {
 		try {
 			ByteArrayInputStream bais = new ByteArrayInputStream(buff.array(),
