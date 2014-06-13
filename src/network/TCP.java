@@ -67,6 +67,7 @@ public class TCP {
 		}
 	}
 
+	// TODO : Faire la fonction de listening
 	/**
 	 * For server Listens on the port to create a new connection to a client who
 	 * has a task to share.
@@ -173,10 +174,12 @@ public class TCP {
 		try {
 			writeBuff.put(RESULT);
 			writeBuff.putShort(taskID);
-
-			//TODO : envoyer le buffer avec les données TYPE, TASK_ID, LENGTH avant l'objet
-			//TODO : Récupérer LENGTH depuis l'objet.
-			clientSocket.socket().getOutputStream().write(serialize(obj));
+			byte[] serializedObj = serialize(obj);
+			// TODO : Vérifier que le byte[] est de la bonne longueur et qu'il
+			// n'y a pas du contenu vide à la fin
+			writeBuff.putLong(serializedObj.length);
+			sendBuff();
+			clientSocket.socket().getOutputStream().write(serializedObj);
 		} catch (IOException e) {
 			System.out.println("ERREUR ENVOI RESULTAT SERIALISE");
 			e.printStackTrace();
@@ -190,6 +193,8 @@ public class TCP {
 		writeBuff.put(END);
 		writeBuff.putShort(taskID);
 	}
+
+	// TODO : Outils de désérialisation dans un autre fichier
 
 	/**
 	 * 
