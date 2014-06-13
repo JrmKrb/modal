@@ -14,7 +14,7 @@ public class TCP {
 	ServerSocketChannel serverSocket;
 	SocketChannel clientSocket;
 	final int port = 12347;
-	
+
 	public TCP(String ip, int port) {
 		connectClient(ip, port);
 	}
@@ -63,58 +63,58 @@ public class TCP {
 			e.printStackTrace();
 		}
 	}
-	
-	public boolean sendMessageToClient(ByteBuffer message){
-		return true;
-	}
-	
-	//TODO
-	public boolean introduction(){
+
+	public boolean sendMessageToClient(ByteBuffer message) {
 		return true;
 	}
 
-	//TODO
-	public boolean classeSimple(){
-		return true;
-	}
-	
-	//TODO
-	public boolean classeTask(){
+	// TODO
+	public boolean introduction() {
 		return true;
 	}
 
-	//TODO
+	// TODO
+	public boolean classeSimple() {
+		return true;
+	}
+
+	// TODO
+	public boolean classeTask() {
+		return true;
+	}
+
+	// TODO
 	// For Client & Servers
 	public boolean ack() {
 		return true;
 	}
-	
-	//TODO
-	public boolean serializedTask(){
+
+	// TODO
+	public boolean serializedTask() {
 		return true;
 	}
 
-	//TODO	
-	public boolean execute(){
+	// TODO
+	public boolean execute() {
 		return true;
 	}
 
-	//TODO
-	public boolean error(){
+	// TODO
+	public boolean error() {
 		return false;
 	}
 
-	//TODO
-	public boolean result(){
+	// TODO
+	public boolean result() {
 		return false;
 	}
 
-	//TODO
-	public boolean end(){
+	// TODO
+	public boolean end() {
 		return false;
 	}
 
-	//TODO
+	// TODO
 	public void sendResult() {
 	}
 }

@@ -11,6 +11,8 @@ public class UDP {
 	private HashMap<InetSocketAddress, Integer> networkList = new HashMap<InetSocketAddress, Integer>();
 	private Thread listenerThread;
 	private static DatagramChannel hostSocket;
+	public final static int FREE = 0;
+	public final static int BUSY = 1;
 
 	public UDP() {
 		try {
@@ -45,7 +47,7 @@ public class UDP {
 			// 0 si libre, 1 si busy TODO : Busy
 			// TODO taskID
 			ByteBuffer buff = ByteBuffer.allocate(3);
-			buff.put((byte) 1);
+			buff.put((byte) FREE);
 			buff.putShort((short) 0);
 			buff.flip();
 			hostSocket.send(buff, remote);
