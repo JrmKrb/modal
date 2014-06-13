@@ -19,8 +19,10 @@ TYPE(1 OCTET UINT BE)    TASK_ID(2 OCTETS UINT BE) LENGTH(8 OCTETS UINT BE)    M
 0 (CS: introduction)   							 0
 1 (C: classe simple)										classe en octets
 2 (C: classe task)										classe en octets
+Classe de l'algorithme utilisé, dont les calculs sont partagés.
 3 (CS: ack)
 4 (C: serialized task)
+Données associé à la tâche.
 5 (C: execute)   								 4  	entier (unsigned int timeout)	 
 6 (S: exec error)   									 message d'erreur
 7 (S: serialized result)
