@@ -1,7 +1,5 @@
 package network;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -11,12 +9,21 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 
 public class TCP {
-	ServerSocketChannel serverSocket;
-	SocketChannel clientSocket;
-	final int port = 12347;
+	public ServerSocketChannel serverSocket;
+	public SocketChannel clientSocket;
+	private final static int PORT = 12347;
+	private final static int INTRO = 0;
+	private final static int SIMPLECLASS = 1;
+	private final static int TASKCLASS = 2;
+	private final static int ACK = 3;
+	private final static int SERIALIZEDTASK = 4;
+	private final static int EXEC = 5;
+	private final static int EXECERROR = 6;
+	private final static int SERIALIZEDRESULT = 7;
+	private final static int END = 8;
 
 	public TCP(String ip, int port) {
-		connectClient(ip, port);
+		// connectClient(ip, port);
 	}
 
 	// For client: connect to server
@@ -35,13 +42,8 @@ public class TCP {
 	public void sendClass(String path) throws IOException {
 		FileChannel fisC;
 		try {
-			FileInputStream fis = new FileInputStream(new File(path));
-			fisC = fis.getChannel();
-			ByteBuffer buff = ByteBuffer.allocate((int) fisC.size());
-			fisC.read(buff);
+			ByteBuffer buff = Message.bufferFromClass(path);
 			clientSocket.write(buff);
-			fisC.close();
-			fis.close();
 		} catch (FileNotFoundException e) {
 			System.out.println("Ficher " + path + "non trouvé !");
 			e.printStackTrace();
@@ -55,7 +57,7 @@ public class TCP {
 	public void listen() {
 		try {
 			ServerSocketChannel serverSocket = ServerSocketChannel.open();
-			InetSocketAddress local = new InetSocketAddress(port);
+			InetSocketAddress local = new InetSocketAddress(PORT);
 			serverSocket.bind(local);
 			this.clientSocket = serverSocket.accept();
 		} catch (IOException e) {
@@ -64,22 +66,17 @@ public class TCP {
 		}
 	}
 
-	public boolean sendMessageToClient(ByteBuffer message) {
-		return true;
+	public boolean sendMessage(ByteBuffer message) {
+		try {
+			clientSocket.write(message);
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
 	}
 
 	// TODO
 	public boolean introduction() {
-		return true;
-	}
-
-	// TODO
-	public boolean classeSimple() {
-		return true;
-	}
-
-	// TODO
-	public boolean classeTask() {
 		return true;
 	}
 
