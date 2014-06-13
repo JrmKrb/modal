@@ -16,7 +16,7 @@ Si occupé :
 	Le client ne doit pas ouvrir de connexion tcp.
 
 TYPE(1 OCTET UINT BE)    TASK_ID(2 OCTETS UINT BE) LENGTH(8 OCTETS UINT BE)    MSG
-0 (CS: introduction)   							 0
+0 (CS: introduction)   							 
 1 (C: classe simple)										classe en octets
 2 (C: classe task)										classe en octets
 Classe de l'algorithme utilisé, dont les calculs sont partagés.
@@ -26,7 +26,7 @@ Données associé à la tâche.
 5 (C: execute)   								 4  	entier (unsigned int timeout)	 
 6 (S: exec error)   									 message d'erreur
 7 (S: serialized result)
-8 (CS: end)   								 0
+8 (CS: end)   								 
 
 la classe subtask implémente l’interface Task (qui héritent les interfaces Runnable et Serializable)
 TASK_ID : identifie uniquement la tâche aux yeux du client

@@ -1,7 +1,10 @@
 package network;
 
-import java.io.FileNotFoundException;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -9,13 +12,6 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 
 public class TCP {
-	public ServerSocketChannel serverSocket;
-	public SocketChannel clientSocket;
-	private final static int PORT = 12347;
-
-	private static ByteBuffer readBuff;
-	private static ByteBuffer writeBuff;
-
 	private final static byte INTRO = 0;
 	private final static byte SIMPLECLASS = 1;
 	private final static byte TASKCLASS = 2;
@@ -23,15 +19,26 @@ public class TCP {
 	private final static byte SERIALIZEDTASK = 4;
 	private final static byte EXEC = 5;
 	private final static byte EXECERROR = 6;
-	private final static byte SERIALIZEDRESULT = 7;
+	private final static byte RESULT = 7;
 	private final static byte END = 8;
 
-	public TCP(String ip, int port) {
-		// TODO: use getSendBufferSize and getReceiveBufferSize instead, see
+	public ServerSocketChannel serverSocket;
+	public SocketChannel clientSocket;
+
+	private final static int PORT = 12347;
+	private final static int TIMEOUT = 30;
+
+	private static ByteBuffer readBuff;
+	private static ByteBuffer writeBuff;
+
+	private short taskID;
+
+	public TCP(String ip, int port, short taskID) {
 		// connectClient
 		// writeBuff = ByteBuffer.allocate(512000000);
 		// readBuff = ByteBuffer.allocate(512000000);
 		// connectClient(ip, port);
+		this.taskID = taskID;
 	}
 
 	/**
@@ -83,73 +90,119 @@ public class TCP {
 		}
 	}
 
+	/**
+	 * Début connection TCP
+	 */
 	public void introduction() {
 		writeBuff.put(INTRO);
-		// TODO TASKID writeBuff.putShort();
+		writeBuff.putShort(taskID);
 	}
 
 	/**
-	 * For Client
 	 * 
 	 * @param path
-	 * @throws IOException
 	 */
 	public void sendClass(String path) {
 		writeBuff.put(SIMPLECLASS);
-		// TODO TASKID writeBuff.putShort();
+		writeBuff.putShort(taskID);
 		writeBuff = Message.bufferFromClass(path, writeBuff);
 	}
 
 	/**
-	 * For Client
+	 * Envoi Tâche
 	 * 
 	 * @param path
-	 * @throws IOException
 	 */
 	public void sendTask(String path) {
 		writeBuff.put(TASKCLASS);
-		// TODO TASKID writeBuff.putShort();
+		writeBuff.putShort(taskID);
 		writeBuff = Message.bufferFromClass(path, writeBuff);
 	}
 
 	/**
-	 * For Client & Servers
-	 * 
-	 * @return
+	 * Envoi Acknowledgment
 	 */
 	public void ack() {
 		writeBuff.put(ACK);
-		// TODO TASKID writeBuff.putShort();
-	}
-
-	public void serializedTask() {
-		writeBuff.put(SERIALIZEDTASK);
-		// TODO TASKID writeBuff.putShort();
-	}
-
-	// TODO
-	public void execute() {
-		return;
+		writeBuff.putShort(taskID);
 	}
 
 	/**
+	 * Envoi tâche sérialisée (avec données)
+	 */
+	public void serializedTask() {
+		writeBuff.put(SERIALIZEDTASK);
+		writeBuff.putShort(taskID);
+	}
+
+	/**
+	 * Exécution effectuée
+	 */
+	public void execute() {
+		writeBuff.put(EXEC);
+		writeBuff.putShort(taskID);
+		writeBuff.putLong(TIMEOUT);
+	}
+
+	/**
+	 * Erreur lors de l'exécution
 	 * 
 	 * @param error
 	 */
 	public void error(String error) {
 		writeBuff.put(EXECERROR);
-		// TODO TASKID writeBuff.putShort();
+		writeBuff.putShort(taskID);
 		writeBuff.putLong(error.length() * 2);
 		Message.bufferFromString(writeBuff, error);
 	}
 
-	// TODO
-	public void result() {
-		return;
+	/**
+	 * Envoi du résultat
+	 * 
+	 * @param obj
+	 */
+	public void result(Serializable obj) {
+		try {
+			writeBuff.put(RESULT);
+			writeBuff.putShort(taskID);
+			clientSocket.socket().getOutputStream().write(serialize(obj));
+		} catch (IOException e) {
+			System.out.println("ERREUR ENVOI RESULTAT SERIALISE");
+			e.printStackTrace();
+		}
 	}
 
-	// TODO
+	/**
+	 * Fin de connection
+	 */
 	public void end() {
-		return;
+		writeBuff.put(END);
+		writeBuff.putShort(taskID);
 	}
+
+	public static byte[] serialize(Serializable o) {
+		try {
+			ByteArrayOutputStream bos = new ByteArrayOutputStream();
+			new ObjectOutputStream(bos).writeObject(o);
+			return bos.toByteArray();
+		} catch (IOException e) {
+			System.out.println("ERREUR SERIALISATION");
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public static Serializable unSerialize(ByteBuffer buff) {
+		try {
+			ByteArrayInputStream bais = new ByteArrayInputStream(buff.array(),
+					0, buff.limit());
+			ObjectInputStream ois = new ObjectInputStream(bais);
+			return (Serializable) ois.readObject();
+		} catch (IOException | ClassNotFoundException e) {
+			System.out.println("ERREUR DESERIALISATION");
+			e.printStackTrace();
+		}
+		return null;
+	}
+
 }
