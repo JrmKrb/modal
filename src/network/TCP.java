@@ -2,6 +2,7 @@ package network;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -21,6 +22,7 @@ public class TCP {
 	private final static byte EXECERROR = 6;
 	private final static byte RESULT = 7;
 	private final static byte END = 8;
+
 	private final static int PORT = 12347;
 	private final static int TIMEOUTLENGTH = 4;
 	private final static int TIMEOUT = 30;
@@ -62,21 +64,68 @@ public class TCP {
 		}
 	}
 
-	
-	
-	// TODO : Faire le Thread listener
+	// RMI Remote Message Invocation
+
+	// TODO : Faire le Thread listener et le classLoader
 	/**
 	 * Thread Listener
 	 */
 	public Thread listener = new Thread() {
 		public void run() {
-			while (true) {
-				try {
-					clientSocket.read(readBuff);
-					System.out.println(readBuff.toString());
-				} catch (IOException e) {
-					e.printStackTrace();
+			try {
+				DataInputStream dis = new DataInputStream(clientSocket.socket()
+						.getInputStream());
+				while (true) {
+					byte tempType = dis.readByte();
+					short tempTaskID = dis.readShort();
+					long messLength;
+					switch (tempType) {
+					case INTRO:
+						System.out.println("INTRO PACKET RECEIVED");
+						break;
+					case SIMPLECLASS:
+						System.out.println("READING SIMPLECLASS PACKET");
+						messLength = dis.readLong();
+						// TODO get Class
+						break;
+					case TASKCLASS:
+						System.out.println("READING TASKCLASS PACKET");
+						messLength = dis.readLong();
+						// TODO get Task
+						break;
+					case ACK:
+						System.out.println("READING ACK PACKET");
+						break;
+					case SERIALIZEDTASK:
+						System.out.println("READING SERIALIZEDTASK PACKET");
+						messLength = dis.readLong();
+						// TODO get SerTask
+						break;
+					case EXEC:
+						System.out.println("READING EXEC PACKET");
+						messLength = dis.readLong();
+						long timeout = dis.readInt();
+						// TODO Indiquer au thread d'exécuter le tout
+						break;
+					case EXECERROR:
+						System.out.println("READING EXECERROR PACKET");
+						messLength = dis.readLong();
+						// TODO get message d'erreur
+						break;
+					case RESULT:
+						System.out.println("READING RESULT PACKET");
+						messLength = dis.readLong();
+						// TODO get Result
+						break;
+					case END:
+						System.out.println("FIN CONNECTION");
+						// TODO : stoper la connection ?
+						break;
+					}
 				}
+			} catch (IOException e) {
+				// TODO Bloc catch généré automatiquement
+				e.printStackTrace();
 			}
 		}
 	};
