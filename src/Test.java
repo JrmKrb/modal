@@ -1,15 +1,20 @@
-import network.UDP;
-
+import network.TCPClient;
+import network.TCPServer;
 
 public class Test {
 
 	/**
 	 * @param args
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public static void main(String[] args) throws InterruptedException {
-		UDP serv = new UDP();
-		serv.whoIsOnline();
+		TCPServer TCPserver = new TCPServer();
+		TCPClient TCPClient = new TCPClient("127.0.0.1", (short) 1337);
+		TCPserver.start();
+		Thread.sleep(500);
+		TCPClient.start();
+		Thread.sleep(500);
+		TCPClient.sendClass("src/Task.java");
+		TCPClient.sendBuff();
 	}
-
 }

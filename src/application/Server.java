@@ -1,16 +1,17 @@
 package application;
 
+import network.TCPClient;
 import network.UDP;
 
 public class Server {
-	private static UDP UDPserver;
+	private UDP UDPserver;
+	private TCPClient TCPserver;
 
-	public Server() {
-		UDPserver = new UDP();
+	public Server() throws InterruptedException {
 	}
 
 	public void execute() {
-		
+
 	}
-	
+
 }

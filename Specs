@@ -39,3 +39,12 @@ LENGTH : le nombre d’octets du MSG
 Après chaque envoi, on attend un ack de la part de l’autre.
 Si on n’a pas de ack, on tente de renvoyer.
 Si on n’a toujours pas de ack, on abandonne.
+
+
+
+Mails :
+julien.cervelle@polytechnique.edu
+jiazi@jiaziyi.com
+christophe.jacquet@supelec.fr
+
+03/08 15:20
