@@ -21,16 +21,14 @@ public class TCP {
 	private final static byte EXECERROR = 6;
 	private final static byte RESULT = 7;
 	private final static byte END = 8;
-
-	public ServerSocketChannel serverSocket;
-	public SocketChannel clientSocket;
-
 	private final static int PORT = 12347;
 	private final static int TIMEOUTLENGTH = 4;
 	private final static int TIMEOUT = 30;
 
 	private static ByteBuffer readBuff;
 	private static ByteBuffer writeBuff;
+	public ServerSocketChannel serverSocket;
+	public SocketChannel clientSocket;
 
 	private short taskID;
 
@@ -41,15 +39,14 @@ public class TCP {
 	 * @param taskID
 	 */
 	public TCP(String ip, int port, short taskID) {
-		// connectClient
-		// writeBuff = ByteBuffer.allocate(512000000);
-		// readBuff = ByteBuffer.allocate(512000000);
-		// connectClient(ip, port);
+		writeBuff = ByteBuffer.allocate(1024000);
+		readBuff = ByteBuffer.allocate(1024000);
+		connectClient(ip, port);
 		this.taskID = taskID;
+		listener.start();
 	}
 
 	/**
-	 * For client: connect to server
 	 * 
 	 * @param ip
 	 * @param port
@@ -59,29 +56,30 @@ public class TCP {
 			InetSocketAddress dest = new InetSocketAddress(ip, port);
 			clientSocket = SocketChannel.open();
 			clientSocket.connect(dest);
-			writeBuff = ByteBuffer.allocate(1024000);
-			readBuff = ByteBuffer.allocate(1024000);
 		} catch (IOException e) {
 			System.out.println("ERREUR connectClient : " + ip + ":" + port);
 			e.printStackTrace();
 		}
 	}
 
-	// TODO : Faire la fonction de listening
+	
+	
+	// TODO : Faire le Thread listener
 	/**
-	 * For server Listens on the port to create a new connection to a client who
-	 * has a task to share.
+	 * Thread Listener
 	 */
-	public void listen() {
-		try {
-			ServerSocketChannel serverSocket = ServerSocketChannel.open();
-			InetSocketAddress local = new InetSocketAddress(PORT);
-			serverSocket.bind(local);
-			this.clientSocket = serverSocket.accept();
-		} catch (IOException e) {
-			e.printStackTrace();
+	public Thread listener = new Thread() {
+		public void run() {
+			while (true) {
+				try {
+					clientSocket.read(readBuff);
+					System.out.println(readBuff.toString());
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
 		}
-	}
+	};
 
 	/**
 	 * 
@@ -107,6 +105,7 @@ public class TCP {
 	}
 
 	/**
+	 * Envoi classes annexes
 	 * 
 	 * @param path
 	 */
@@ -194,7 +193,7 @@ public class TCP {
 		writeBuff.putShort(taskID);
 	}
 
-	// TODO : Outils de désérialisation dans un autre fichier
+	// TODO : Outils de (dé)sérialisation dans un autre fichier
 
 	/**
 	 * 
