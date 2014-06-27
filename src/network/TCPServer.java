@@ -1,12 +1,17 @@
 package network;
 
+
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
+import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 
@@ -46,6 +51,7 @@ public class TCPServer extends Thread {
 				short tempTaskID = dis.readShort();
 				System.out.println("taskID : " + tempTaskID + "\n");
 				int messLength = 0;
+				ClassLoader classLoader = TCPServer.class.getClassLoader();
 				switch (tempType) {
 				case INTRO:
 					System.out.println("READING INTRO PACKET");
@@ -53,13 +59,17 @@ public class TCPServer extends Thread {
 				case SIMPLECLASS:
 					System.out.println("READING SIMPLECLASS PACKET");
 					messLength = (int) dis.readLong();
-					// TODO get Class
+					String path = "bin/coucou.class";
+					FileChannel fc = Message.channelFromFile(path);
+					fc.transferFrom(clientSocket, 0, messLength);
 					break;
 				case TASKCLASS:
 					System.out.println("READING TASKCLASS PACKET");
 					messLength = (int) dis.readLong();
-					// TODO get Task
-					break;
+					path = "bin/SumTask.class";
+					fc = new FileOutputStream(new File(path)).getChannel();
+					fc.transferFrom(clientSocket, 0, messLength);
+					Class<?> loadedClass = classLoader.loadClass("application.sumTask");
 				case ACK:
 					System.out.println("READING ACK PACKET");
 					break;
@@ -87,12 +97,12 @@ public class TCPServer extends Thread {
 					messLength = (int) dis.readLong();
 					Object o = Message.getObject(clientSocket.socket());
 					sumTask st = (sumTask) o;
-					System.out.println("RESULT : "+st.result);
+					System.out.println("RESULT : " + st.result);
 					// TODO get Result
 					break;
 				case END:
 					System.out.println("READING END CONNECTION PACKET");
-					//TODO endConnection
+					// TODO endConnection
 					break;
 				}
 				System.out.println("Taille message : " + messLength);
@@ -102,7 +112,7 @@ public class TCPServer extends Thread {
 				System.out.println(new String(message, "UTF-16BE")
 						+ "\nPACKET RECEIVED => Go to next one\n\n");
 			}
-		} catch (IOException e) {
+		} catch (IOException | ClassNotFoundException e) {
 			e.printStackTrace();
 		}
 	}
