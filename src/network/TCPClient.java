@@ -170,19 +170,12 @@ public class TCPClient extends Thread {
 	 * @param obj
 	 */
 	public void result(Serializable obj) {
-		try {
-			writeBuff.put(RESULT);
-			writeBuff.putShort(taskID);
-			byte[] serializedObj = serialize(obj);
-			// TODO : Vérifier que le byte[] est de la bonne longueur et qu'il
-			// n'y a pas du contenu vide à la fin
-			writeBuff.putLong(serializedObj.length);
-			sendBuff();
-			clientSocket.socket().getOutputStream().write(serializedObj);
-		} catch (IOException e) {
-			System.out.println("ERREUR ENVOI RESULTAT SERIALISE");
-			e.printStackTrace();
-		}
+		writeBuff.put(RESULT);
+		writeBuff.putShort(taskID);
+		writeBuff.putLong(0);
+		// TODO : envoyer la VRAIE taille de l'objet.
+		sendBuff();
+		Message.sendObject(clientSocket.socket(), obj);
 	}
 
 	/**

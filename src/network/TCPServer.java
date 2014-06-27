@@ -1,16 +1,16 @@
 package network;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+
+import application.sumTask;
 
 public class TCPServer extends Thread {
 	private final static byte INTRO = 0;
@@ -44,7 +44,7 @@ public class TCPServer extends Thread {
 				byte tempType = dis.readByte();
 				System.out.println("Waiting for taskID");
 				short tempTaskID = dis.readShort();
-				System.out.println("taskID : " + tempTaskID+"\n");
+				System.out.println("taskID : " + tempTaskID + "\n");
 				int messLength = 0;
 				switch (tempType) {
 				case INTRO:
@@ -79,29 +79,30 @@ public class TCPServer extends Thread {
 				case EXECERROR:
 					System.out.println("READING EXECERROR PACKET");
 					messLength = (int) dis.readLong();
-					// TODO get message d'erreur
+					for (int i = 0; i < messLength; i++)
+						System.err.print(dis.readByte());
 					break;
 				case RESULT:
 					System.out.println("READING RESULT PACKET");
 					messLength = (int) dis.readLong();
+					Object o = Message.getObject(clientSocket.socket());
+					sumTask st = (sumTask) o;
+					System.out.println("RESULT : "+st.result);
 					// TODO get Result
 					break;
 				case END:
 					System.out.println("READING END CONNECTION PACKET");
-					// TODO : stoper la connection
+					//TODO endConnection
 					break;
 				}
-				System.out.println("Taille message : "+messLength);
+				System.out.println("Taille message : " + messLength);
 				// On lit le message :
 
 				byte[] message = new byte[(int) messLength];
-				for (int i = 0; i < messLength; i++) {
-					message[i] = dis.readByte();
-				}
-				System.out.println(new String(message,"UTF-16BE")+"\nPACKET RECEIVED => Go to next one\n\n");
+				System.out.println(new String(message, "UTF-16BE")
+						+ "\nPACKET RECEIVED => Go to next one\n\n");
 			}
 		} catch (IOException e) {
-			// TODO Bloc catch généré automatiquement
 			e.printStackTrace();
 		}
 	}

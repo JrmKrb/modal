@@ -1,3 +1,4 @@
+import application.sumTask;
 import network.TCPClient;
 import network.TCPServer;
 
@@ -14,7 +15,10 @@ public class Test {
 		Thread.sleep(500);
 		TCPClient.start();
 		Thread.sleep(500);
-		TCPClient.sendClass("src/Task.java");
+		TCPClient.end();
 		TCPClient.sendBuff();
+		sumTask s = new sumTask();
+		s.run();
+		TCPClient.result(s);
 	}
 }
