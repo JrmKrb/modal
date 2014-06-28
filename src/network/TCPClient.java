@@ -56,7 +56,7 @@ public class TCPClient extends Thread {
 			System.out.println("Client connected to " + remote.getAddress()
 					+ ":" + remote.getPort() + "\n");
 		} catch (IOException e) {
-			System.out.println("ERREUR CONSTRUCTEUR TCP");
+			System.out.println("ERREUR CONSTRUCTEUR TCP CLIENT");
 			e.printStackTrace();
 		}
 	}
