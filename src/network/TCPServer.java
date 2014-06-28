@@ -40,6 +40,7 @@ public class TCPServer extends Thread {
 			System.out.println("Serveur en attente d'un message.");
 			DataInputStream dis = new DataInputStream(clientSocket.socket()
 					.getInputStream());
+			Task serializedTask = null;
 			while (true) {
 				System.out.println("Waiting for Type");
 				byte tempType = dis.readByte();
@@ -50,7 +51,6 @@ public class TCPServer extends Thread {
 				System.out.println("Taille message : " + messLength);
 				NetworkClassLoader classLoader = (NetworkClassLoader) TCPServer.class
 						.getClassLoader();
-
 				switch (tempType) {
 				case INTRO:
 					System.out.println("READING INTRO PACKET");
@@ -79,17 +79,18 @@ public class TCPServer extends Thread {
 					break;
 				case SERIALIZEDTASK:
 					System.out.println("READING SERIALIZEDTASK PACKET");
-					Task serializedTask = (Task) Message.getObject(clientSocket
+					serializedTask = (Task) Message.getObject(clientSocket
 							.socket());
 
-					// TODO: do st with serializedTask
 					break;
 				case EXEC:
 					System.out.println("READING EXEC PACKET");
 					long timeout;
 					System.out
 							.println("Timeout : " + (timeout = dis.readInt()));
-					// TODO Indiquer au thread d'exécuter le code.
+					Thread computingThread = new Thread(
+							serializedTask);
+					computingThread.run();
 					break;
 				case EXECERROR:
 					System.out.println("READING EXECERROR PACKET");
@@ -119,26 +120,22 @@ public class TCPServer extends Thread {
 		}
 	}
 
-//	/**
-//	 * 
-//	 * @param buff
-//	 * @return
-//	 */
-//	public static Serializable unSerialize(ByteBuffer buff) {
-//		try {
-//			ByteArrayInputStream bais = new ByteArrayInputStream(buff.array(),
-//					0, buff.limit());
-//			ObjectInputStream ois = new ObjectInputStream(bais);
-//			return (Serializable) ois.readObject();
-//		} catch (IOException | ClassNotFoundException e) {
-//			System.out.println("ERREUR DESERIALISATION");
-//			e.printStackTrace();
-//		}
-//		return null;
-//	}
-
-	public void execute(Task task) {
-		task.run();
-	}
+	// /**
+	// *
+	// * @param buff
+	// * @return
+	// */
+	// public static Serializable unSerialize(ByteBuffer buff) {
+	// try {
+	// ByteArrayInputStream bais = new ByteArrayInputStream(buff.array(),
+	// 0, buff.limit());
+	// ObjectInputStream ois = new ObjectInputStream(bais);
+	// return (Serializable) ois.readObject();
+	// } catch (IOException | ClassNotFoundException e) {
+	// System.out.println("ERREUR DESERIALISATION");
+	// e.printStackTrace();
+	// }
+	// return null;
+	// }
 
 }
