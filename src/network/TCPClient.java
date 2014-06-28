@@ -161,7 +161,6 @@ public class TCPClient extends Thread {
 	public void error(String error) {
 		writeBuff.put(EXECERROR);
 		writeBuff.putShort(taskID);
-		//TODO: why this length?
 		writeBuff.putLong(error.length() * 2);
 		Message.bufferFromString(writeBuff, error);
 	}
@@ -189,41 +188,41 @@ public class TCPClient extends Thread {
 		writeBuff.putLong(0);
 	}
 
-	// TODO : Outils de (dé)sérialisation dans un autre fichier
+	
 
 	/**
 	 * 
-	 * @param o
-	 * @return
-	 */
-	public static byte[] serialize(Serializable o) {
-		try {
-			ByteArrayOutputStream bos = new ByteArrayOutputStream();
-			new ObjectOutputStream(bos).writeObject(o);
-			return bos.toByteArray();
-		} catch (IOException e) {
-			System.out.println("ERREUR SERIALISATION");
-			e.printStackTrace();
-		}
-		return null;
-	}
-
-	/**
-	 * 
-	 * @param buff
-	 * @return
-	 */
-	public static Serializable unSerialize(ByteBuffer buff) {
-		try {
-			ByteArrayInputStream bais = new ByteArrayInputStream(buff.array(),
-					0, buff.limit());
-			ObjectInputStream ois = new ObjectInputStream(bais);
-			return (Serializable) ois.readObject();
-		} catch (IOException | ClassNotFoundException e) {
-			System.out.println("ERREUR DESERIALISATION");
-			e.printStackTrace();
-		}
-		return null;
-	}
+//	 * @param o
+//	 * @return
+//	 */
+//	public static byte[] serialize(Serializable o) {
+//		try {
+//			ByteArrayOutputStream bos = new ByteArrayOutputStream();
+//			new ObjectOutputStream(bos).writeObject(o);
+//			return bos.toByteArray();
+//		} catch (IOException e) {
+//			System.out.println("ERREUR SERIALISATION");
+//			e.printStackTrace();
+//		}
+//		return null;
+//	}
+//
+//	/**
+//	 * 
+//	 * @param buff
+//	 * @return
+//	 */
+//	public static Serializable unSerialize(ByteBuffer buff) {
+//		try {
+//			ByteArrayInputStream bais = new ByteArrayInputStream(buff.array(),
+//					0, buff.limit());
+//			ObjectInputStream ois = new ObjectInputStream(bais);
+//			return (Serializable) ois.readObject();
+//		} catch (IOException | ClassNotFoundException e) {
+//			System.out.println("ERREUR DESERIALISATION");
+//			e.printStackTrace();
+//		}
+//		return null;
+//	}
 
 }

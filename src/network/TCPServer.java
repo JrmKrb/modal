@@ -119,27 +119,26 @@ public class TCPServer extends Thread {
 		}
 	}
 
-	/**
-	 * 
-	 * @param buff
-	 * @return
-	 */
-	public static Serializable unSerialize(ByteBuffer buff) {
-		try {
-			ByteArrayInputStream bais = new ByteArrayInputStream(buff.array(),
-					0, buff.limit());
-			ObjectInputStream ois = new ObjectInputStream(bais);
-			return (Serializable) ois.readObject();
-		} catch (IOException | ClassNotFoundException e) {
-			System.out.println("ERREUR DESERIALISATION");
-			e.printStackTrace();
-		}
-		return null;
-	}
+//	/**
+//	 * 
+//	 * @param buff
+//	 * @return
+//	 */
+//	public static Serializable unSerialize(ByteBuffer buff) {
+//		try {
+//			ByteArrayInputStream bais = new ByteArrayInputStream(buff.array(),
+//					0, buff.limit());
+//			ObjectInputStream ois = new ObjectInputStream(bais);
+//			return (Serializable) ois.readObject();
+//		} catch (IOException | ClassNotFoundException e) {
+//			System.out.println("ERREUR DESERIALISATION");
+//			e.printStackTrace();
+//		}
+//		return null;
+//	}
 
-	// TODO
 	public void execute(Task task) {
-
+		task.run();
 	}
 
 }
