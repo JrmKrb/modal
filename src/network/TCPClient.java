@@ -2,7 +2,6 @@ package network;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -10,7 +9,6 @@ import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
-import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.file.Paths;
 
@@ -56,7 +54,7 @@ public class TCPClient extends Thread {
 			System.out.println("Client connected to " + remote.getAddress()
 					+ ":" + remote.getPort() + "\n");
 		} catch (IOException e) {
-			System.out.println("ERREUR CONSTRUCTEUR TCP");
+			System.out.println("ERREUR CONSTRUCTEUR TCP CLIENT");
 			e.printStackTrace();
 		}
 	}
@@ -142,6 +140,7 @@ public class TCPClient extends Thread {
 	public void serializedTask() {
 		writeBuff.put(SERIALIZEDTASK);
 		writeBuff.putShort(taskID);
+		//TODO
 	}
 
 	/**
@@ -162,6 +161,7 @@ public class TCPClient extends Thread {
 	public void error(String error) {
 		writeBuff.put(EXECERROR);
 		writeBuff.putShort(taskID);
+		//TODO: why this length?
 		writeBuff.putLong(error.length() * 2);
 		Message.bufferFromString(writeBuff, error);
 	}
@@ -186,6 +186,7 @@ public class TCPClient extends Thread {
 	public void end() {
 		writeBuff.put(END);
 		writeBuff.putShort(taskID);
+		writeBuff.putLong(0);
 	}
 
 	// TODO : Outils de (dé)sérialisation dans un autre fichier

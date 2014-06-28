@@ -43,7 +43,7 @@ public class Message {
 		}
 		return null;
 	}
-
+	
 	public static Class<?> getClass(Socket s, int length) {
 		byte[] bf = new byte[length];
 		try {

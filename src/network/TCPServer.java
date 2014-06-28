@@ -11,6 +11,7 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 
 import application.sumTask;
+import application.Task;
 
 public class TCPServer extends Thread {
 	private final static byte INTRO = 0;
@@ -49,41 +50,46 @@ public class TCPServer extends Thread {
 				System.out.println("Taille message : " + messLength);
 				NetworkClassLoader classLoader = (NetworkClassLoader) TCPServer.class
 						.getClassLoader();
+
 				switch (tempType) {
 				case INTRO:
 					System.out.println("READING INTRO PACKET");
 					break;
 				case SIMPLECLASS:
 					System.out.println("READING SIMPLECLASS PACKET");
-					Class simpleClass = Message.getClass(clientSocket.socket(),
-							messLength);
+
+					Class<?> simpleClass = Message.getClass(
+							clientSocket.socket(), messLength);
 					classLoader.loadClass(simpleClass.getName());
-					// TODO
 					break;
 				case TASKCLASS:
 					System.out.println("READING TASKCLASS PACKET");
-					Class taskClass = Message.getClass(clientSocket.socket(),
-							messLength);
+					Class<?> taskClass = Message.getClass(
+							clientSocket.socket(), messLength);
 					classLoader.loadClass(taskClass.getName());
+					// TODO: ?
 					// path = "bin/SumTask.class";
 					// fc = new FileOutputStream(new File(path)).getChannel();
 					// fc.transferFrom(clientSocket, 0, messLength);
-					Class<?> loadedClass = classLoader
-							.loadClass("application.sumTask");
+					// Class<?> loadedClass =
+					// classLoader.loadClass("application.sumTask");
+
 				case ACK:
 					System.out.println("READING ACK PACKET");
 					break;
 				case SERIALIZEDTASK:
 					System.out.println("READING SERIALIZEDTASK PACKET");
-					System.out.println(messLength);
-					// TODO get SerTask
+					Task serializedTask = (Task) Message.getObject(clientSocket
+							.socket());
+
+					// TODO: do st with serializedTask
 					break;
 				case EXEC:
 					System.out.println("READING EXEC PACKET");
 					long timeout;
 					System.out
 							.println("Timeout : " + (timeout = dis.readInt()));
-					// TODO Indiquer au thread d'exécuter le code
+					// TODO Indiquer au thread d'exécuter le code.
 					break;
 				case EXECERROR:
 					System.out.println("READING EXECERROR PACKET");
@@ -92,8 +98,8 @@ public class TCPServer extends Thread {
 					break;
 				case RESULT:
 					System.out.println("READING RESULT PACKET");
-					Object o = Message.getObject(clientSocket.socket());
-					sumTask st = (sumTask) o;
+					Object o1 = Message.getObject(clientSocket.socket());
+					sumTask st = (sumTask) o1;
 					System.out.println("RESULT : " + st.result);
 					// TODO get Result
 					break;
@@ -129,6 +135,11 @@ public class TCPServer extends Thread {
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	// TODO
+	public void execute(Task task) {
+
 	}
 
 }
