@@ -48,8 +48,8 @@ public class Message {
 		byte[] bf = new byte[length];
 		try {
 			s.getInputStream().read(bf);
-			NetworkClassLoader classLoader = (NetworkClassLoader) Message.class
-					.getClassLoader();
+			NetworkClassLoader classLoader = new NetworkClassLoader(
+					Message.class.getClassLoader());
 			return classLoader.load(bf);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

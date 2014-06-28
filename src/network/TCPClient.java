@@ -1,11 +1,8 @@
 package network;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
@@ -23,7 +20,7 @@ public class TCPClient extends Thread {
 	private final static byte RESULT = 7;
 	private final static byte END = 8;
 
-	private final static int PORT = 12347;
+	private final static int PORT = 12357;
 	private final static int TIMEOUTLENGTH = 4;
 	private final static int TIMEOUT = 30;
 	private final String serverIP;
@@ -51,8 +48,11 @@ public class TCPClient extends Thread {
 			clientSocket.bind(new InetSocketAddress(0));
 			InetSocketAddress remote = new InetSocketAddress(serverIP, PORT);
 			clientSocket.connect(remote);
+			intro();
+			sendBuff();
 			System.out.println("Client connected to " + remote.getAddress()
 					+ ":" + remote.getPort() + "\n");
+			while(true);
 		} catch (IOException e) {
 			System.out.println("ERREUR CONSTRUCTEUR TCP CLIENT");
 			e.printStackTrace();
@@ -161,7 +161,8 @@ public class TCPClient extends Thread {
 	public void error(String error) {
 		writeBuff.put(EXECERROR);
 		writeBuff.putShort(taskID);
-		writeBuff.putLong(error.length() * 2);
+		Long n = (long) error.length()*2;
+		writeBuff.putLong(n);
 		Message.bufferFromString(writeBuff, error);
 	}
 

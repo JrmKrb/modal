@@ -1,5 +1,4 @@
 import network.TCPClient;
-import network.TCPServer;
 
 public class Test {
 
@@ -8,18 +7,13 @@ public class Test {
 	 * @throws InterruptedException
 	 */
 	public static void main(String[] args) throws InterruptedException {
-		TCPServer TCPserver = new TCPServer();
-		TCPClient TCPClient = new TCPClient("127.0.0.1", (short) 1337);
-		TCPserver.start();
+		TCPClient client = new TCPClient("129.104.252.48", (short) 1337);
+		client.start();
 		Thread.sleep(500);
-		TCPClient.start();
-		Thread.sleep(500);
-
-		TCPClient.end();
-		TCPClient.sendBuff();
-		TCPClient.ack();
-		TCPClient.sendBuff();
-
+		
+		client.error("TU ES UN GROS CACA");
+		client.sendBuff();
+		
 		// TCPClient.sendTask("bin/application/sumTask.class");
 	}
 }
