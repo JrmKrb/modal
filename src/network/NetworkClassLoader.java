@@ -1,18 +1,34 @@
 package network;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /* defineClass is protected, that's why we have to create our own custom class. */
 class NetworkClassLoader extends ClassLoader {
+	private Map<String,Class> table;
 	public NetworkClassLoader(ClassLoader parent){
 		super(parent);
+		table = new HashMap<String,Class>();
+	}
+	
+	@Override
+	public Class findClass(String name)
+	{
+		return table.get(name);
+	}
+	
+	public void addClass(Class c){
+		table.put(c.getName(),c);
 	}
 	
 	public Class<?> load(byte[] b) {
 		//we do not know the name of the class, hence "null" as a first argument
-		return defineClass("sumTask", b, 0, b.length);
+		Class c = defineClass(null, b, 0, b.length);
+		addClass(c);
+		return c;
+		
 		
 	}
 	
-	public void resolve(Class<?> c){
-		this.resolveClass(c);
-	}
+	
 }
