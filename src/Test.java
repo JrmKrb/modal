@@ -9,22 +9,22 @@ public class Test {
 	 */
 	public static void main(String[] args) throws InterruptedException {
 		TCPClient client = new TCPClient("129.104.252.48", (short) 1337);
+		TCPServer TCPserver = new TCPServer();
+		TCPserver.start();
 		client.start();
-		Thread.sleep(3000);
 		
-		client.intro();
-		client.error("TU ES UN GROS CACA");
-		client.sendBuff();
-		client.sendTask("bin/sumTask.class");
+		
+		Thread.sleep(3000);
+
+
 		client.serializedTask(new sumTask());
-		client.sendBuff();
+		
+		
+		Thread.sleep(3000);
 		client.execute();
 		client.sendBuff();
 		
 		// TCPClient.sendTask("bin/application/sumTask.class");
-
-		/*TCPServer TCPserver = new TCPServer();
-		TCPserver.start();*/
 
 	}
 }

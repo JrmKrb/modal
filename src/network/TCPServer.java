@@ -8,6 +8,7 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 
 import application.Task;
+import application.sumTask;
 
 public class TCPServer extends Thread {
 	private final static byte INTRO = 0;
@@ -106,9 +107,10 @@ public class TCPServer extends Thread {
 					long timeout;
 					System.out
 							.println("Timeout : " + (timeout = dis.readInt()));
-					Thread computingThread = new Thread(
-							serializedTask);
-					computingThread.run();
+					serializedTask.run();
+					TCPClient t = new TCPClient("129.104.252.49",(short) 1337);
+					t.serializedTask(serializedTask);
+					t.sendBuff();
 					messLength = 0;
 					break;
 				case EXECERROR:
@@ -116,8 +118,8 @@ public class TCPServer extends Thread {
 					break;
 				case RESULT:
 					System.out.println("READING RESULT PACKET");
-					Task o1 = (Task) Message.getObject(clientSocket.socket(),classLoader);
-					System.out.println("Resultat Recu");
+					sumTask o1 = (sumTask) Message.getObject(clientSocket.socket(),classLoader);
+					System.out.println("Resultat Recu : "+o1.result);
 					break;
 				case END:
 					System.out.println("READING END CONNECTION PACKET");
