@@ -142,6 +142,7 @@ public class TCPClient extends Thread {
 	public void serializedTask() {
 		writeBuff.put(SERIALIZEDTASK);
 		writeBuff.putShort(taskID);
+		//TODO
 	}
 
 	/**
@@ -162,6 +163,7 @@ public class TCPClient extends Thread {
 	public void error(String error) {
 		writeBuff.put(EXECERROR);
 		writeBuff.putShort(taskID);
+		//TODO: why this length?
 		writeBuff.putLong(error.length() * 2);
 		Message.bufferFromString(writeBuff, error);
 	}
