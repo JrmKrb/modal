@@ -7,7 +7,6 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 
 import application.Task;
-import application.sumTask;
 
 public class TCPServer extends Thread {
 	private final static byte INTRO = 0;
@@ -93,8 +92,6 @@ public class TCPServer extends Thread {
 				case RESULT:
 					System.out.println("READING RESULT PACKET");
 					Object o1 = Message.getObject(clientSocket.socket());
-					sumTask st = (sumTask) o1;
-					System.out.println("RESULT : " + st.result);
 					// TODO get Result
 					break;
 				case END:

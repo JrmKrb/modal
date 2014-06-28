@@ -2,12 +2,13 @@ package network;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.file.Paths;
+
+import application.Task;
 
 public class TCPClient extends Thread {
 	private final static byte INTRO = 0;
@@ -48,8 +49,6 @@ public class TCPClient extends Thread {
 			clientSocket.bind(new InetSocketAddress(0));
 			InetSocketAddress remote = new InetSocketAddress(serverIP, PORT);
 			clientSocket.connect(remote);
-			intro();
-			sendBuff();
 			System.out.println("Client connected to " + remote.getAddress()
 					+ ":" + remote.getPort() + "\n");
 			while(true);
@@ -137,10 +136,12 @@ public class TCPClient extends Thread {
 	/**
 	 * Envoi tâche sérialisée (avec données)
 	 */
-	public void serializedTask() {
+	public void serializedTask(Task t) {
 		writeBuff.put(SERIALIZEDTASK);
 		writeBuff.putShort(taskID);
-		//TODO
+		writeBuff.putLong(0L);
+		sendBuff();
+		Message.sendObject(clientSocket.socket(), t);
 	}
 
 	/**
