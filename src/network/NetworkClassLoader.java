@@ -8,6 +8,11 @@ class NetworkClassLoader extends ClassLoader {
 	
 	public Class<?> load(byte[] b) {
 		//we do not know the name of the class, hence "null" as a first argument
-		return defineClass(null, b, 0, b.length);
+		return defineClass("sumTask", b, 0, b.length);
+		
+	}
+	
+	public void resolve(Class<?> c){
+		this.resolveClass(c);
 	}
 }

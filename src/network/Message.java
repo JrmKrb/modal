@@ -34,9 +34,9 @@ public class Message {
 		}
 	}
 
-	public static Object getObject(Socket s) {
+	public static Object getObject(Socket s, ClassLoader classLoader) {
 		try {
-			ObjectInputStream in = new ObjectInputStream(s.getInputStream());
+			ClassLoaderObjectInputStream in = new ClassLoaderObjectInputStream(classLoader,s.getInputStream());
 			return (Object) in.readObject();
 		} catch (IOException | ClassNotFoundException e) {
 			e.printStackTrace();
@@ -44,18 +44,18 @@ public class Message {
 		return null;
 	}
 	
-	public static Class<?> getClass(Socket s, int length) {
-		byte[] bf = new byte[length];
-		try {
-			s.getInputStream().read(bf);
-			NetworkClassLoader classLoader = new NetworkClassLoader(
-					Message.class.getClassLoader());
-			return classLoader.load(bf);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return null;
-	}
+//	public static Class<?> getClass(Socket s, int length) {
+//		byte[] bf = new byte[length];
+//		try {
+//			s.getInputStream().read(bf);
+//			NetworkClassLoader classLoader = new NetworkClassLoader(
+//					Message.class.getClassLoader());
+//			return classLoader.load(bf);
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		return null;
+//	}
 
 }

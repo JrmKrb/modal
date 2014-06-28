@@ -2,12 +2,14 @@ package network;
 
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.lang.instrument.Instrumentation;
 import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 
 import application.Task;
-import application.sumTask;
 
 public class TCPServer extends Thread {
 	private final static byte INTRO = 0;
@@ -27,10 +29,25 @@ public class TCPServer extends Thread {
 
 	// TODO : Finir le Thread listener et faire le classLoader
 
+	
+	public static Class<?> getClass(Socket s, int length) {
+		byte[] bf = new byte[length];
+		try {
+			s.getInputStream().read(bf);
+			NetworkClassLoader classLoader = new NetworkClassLoader(
+					TCPServer.class.getClassLoader());
+			return classLoader.load(bf);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
 	public void run() {
 		try {
 			serverSocket = ServerSocketChannel.open();
-			serverSocket.bind(new InetSocketAddress("127.0.0.1", PORT));
+			serverSocket.bind(new InetSocketAddress("129.104.252.48", PORT));
 			System.out.println("Serveur en attente d'un client.");
 			clientSocket = serverSocket.accept();
 			System.out.println("Serveur en attente d'un message.");
@@ -40,6 +57,7 @@ public class TCPServer extends Thread {
 			while (true) {
 				System.out.println("Waiting for Type");
 				byte tempType = dis.readByte();
+				System.out.println(tempType);
 				System.out.println("Waiting for taskID");
 				short tempTaskID = dis.readShort();
 				System.out.println("taskID : " + tempTaskID + "\n");
@@ -53,15 +71,20 @@ public class TCPServer extends Thread {
 				case SIMPLECLASS:
 					System.out.println("READING SIMPLECLASS PACKET");
 
-					Class<?> simpleClass = Message.getClass(
+					Class<?> simpleClass = getClass(
 							clientSocket.socket(), (int) messLength);
-					classLoader.loadClass(simpleClass.getName());
+					classLoader.resolve(simpleClass);
+//					classLoader.loadClass(simpleClass.getName());
 					break;
 				case TASKCLASS:
 					System.out.println("READING TASKCLASS PACKET");
-					Class<?> taskClass = Message.getClass(
+					Class<?> taskClass = getClass(
 							clientSocket.socket(), (int) messLength);
-					classLoader.loadClass(taskClass.getName());
+					classLoader.resolve(taskClass);
+					System.out.println("taskClass " + taskClass.getName() + " loaded");
+					//classLoader.loadClass(taskClass.getName());
+					messLength = 0;
+					
 					// TODO: ?
 					// path = "bin/SumTask.class";
 					// fc = new FileOutputStream(new File(path)).getChannel();
@@ -74,9 +97,11 @@ public class TCPServer extends Thread {
 					break;
 				case SERIALIZEDTASK:
 					System.out.println("READING SERIALIZEDTASK PACKET");
-					serializedTask = (Task) Message.getObject(clientSocket
-							.socket());
-
+					ClassLoaderObjectInputStream in = new ClassLoaderObjectInputStream(classLoader,clientSocket.socket().getInputStream());
+					System.out.println("try to read object");
+					serializedTask  = (Task) in.readObject();
+//					serializedTask = (Task) Message.getObject(clientSocket
+//							.socket());
 					break;
 				case EXEC:
 					System.out.println("READING EXEC PACKET");
@@ -86,15 +111,14 @@ public class TCPServer extends Thread {
 					Thread computingThread = new Thread(
 							serializedTask);
 					computingThread.run();
+					messLength = 0;
 					break;
 				case EXECERROR:
 					System.out.println("READING EXECERROR PACKET");
 					break;
 				case RESULT:
 					System.out.println("READING RESULT PACKET");
-					Object o1 = Message.getObject(clientSocket.socket());
-					sumTask st = (sumTask) o1;
-					System.out.println("RESULT : " + st.result);
+//					Object o1 = Message.getObject(clientSocket.socket());
 					// TODO get Result
 					break;
 				case END:
@@ -105,10 +129,14 @@ public class TCPServer extends Thread {
 				// On lit le message :
 
 				byte[] message = new byte[(int) messLength];
+			dis.read(message);
 				System.out.println(new String(message, "UTF-16BE")
 						+ "\nPACKET RECEIVED => Go to next one\n\n");
 			}
-		} catch (IOException | ClassNotFoundException e) {
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
