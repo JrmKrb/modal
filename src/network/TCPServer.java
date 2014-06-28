@@ -121,7 +121,7 @@ public class TCPServer extends Thread {
 				case RESULT:
 					System.out.println("READING RESULT PACKET");
 					sumTask o1 = (sumTask) Message.getObject(clientSocket.socket(),classLoader);
-					System.out.println("Resultat Recu : "+o1.result);
+//					System.out.println("Resultat Recu : "+o1.result);
 					break;
 				case END:
 					System.out.println("READING END CONNECTION PACKET");
