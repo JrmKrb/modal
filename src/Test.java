@@ -1,4 +1,5 @@
 import network.TCPClient;
+import network.TCPServer;
 
 public class Test {
 
@@ -21,5 +22,9 @@ public class Test {
 		client.sendBuff();
 		
 		// TCPClient.sendTask("bin/application/sumTask.class");
+
+		/*TCPServer TCPserver = new TCPServer();
+		TCPserver.start();*/
+
 	}
 }
