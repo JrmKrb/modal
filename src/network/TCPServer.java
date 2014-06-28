@@ -1,20 +1,12 @@
 package network;
 
-
-import MainClass;
-import NetworkClassLoader;
-
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
-import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 
@@ -55,25 +47,29 @@ public class TCPServer extends Thread {
 				System.out.println("taskID : " + tempTaskID + "\n");
 				int messLength = (int) dis.readLong();
 				System.out.println("Taille message : " + messLength);
-				NetworkClassLoader classLoader = (NetworkClassLoader) TCPServer.class.getClassLoader();
+				NetworkClassLoader classLoader = (NetworkClassLoader) TCPServer.class
+						.getClassLoader();
 				switch (tempType) {
 				case INTRO:
 					System.out.println("READING INTRO PACKET");
 					break;
 				case SIMPLECLASS:
 					System.out.println("READING SIMPLECLASS PACKET");
-					Class simpleClass = Message.getClass(clientSocket.socket(), messLength);
+					Class simpleClass = Message.getClass(clientSocket.socket(),
+							messLength);
 					classLoader.loadClass(simpleClass.getName());
-					//TODO
+					// TODO
 					break;
 				case TASKCLASS:
 					System.out.println("READING TASKCLASS PACKET");
-					Class taskClass = Message.getClass(clientSocket.socket(), messLength);
+					Class taskClass = Message.getClass(clientSocket.socket(),
+							messLength);
 					classLoader.loadClass(taskClass.getName());
-//					path = "bin/SumTask.class";
-//					fc = new FileOutputStream(new File(path)).getChannel();
-//					fc.transferFrom(clientSocket, 0, messLength);
-					Class<?> loadedClass = classLoader.loadClass("application.sumTask");
+					// path = "bin/SumTask.class";
+					// fc = new FileOutputStream(new File(path)).getChannel();
+					// fc.transferFrom(clientSocket, 0, messLength);
+					Class<?> loadedClass = classLoader
+							.loadClass("application.sumTask");
 				case ACK:
 					System.out.println("READING ACK PACKET");
 					break;

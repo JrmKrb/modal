@@ -85,6 +85,7 @@ public class TCPClient extends Thread {
 	public void intro() {
 		writeBuff.put(INTRO);
 		writeBuff.putShort(taskID);
+		writeBuff.putLong(0L);
 	}
 
 	/**
@@ -132,6 +133,7 @@ public class TCPClient extends Thread {
 	public void ack() {
 		writeBuff.put(ACK);
 		writeBuff.putShort(taskID);
+		writeBuff.putLong(0L);
 	}
 
 	/**

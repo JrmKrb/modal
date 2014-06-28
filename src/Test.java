@@ -14,8 +14,12 @@ public class Test {
 		Thread.sleep(500);
 		TCPClient.start();
 		Thread.sleep(500);
+
 		TCPClient.end();
 		TCPClient.sendBuff();
-		TCPClient.sendTask("bin/application/sumTask.class");
+		TCPClient.ack();
+		TCPClient.sendBuff();
+
+		// TCPClient.sendTask("bin/application/sumTask.class");
 	}
 }

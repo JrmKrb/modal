@@ -43,18 +43,19 @@ public class Message {
 		}
 		return null;
 	}
-	
-	public static Class<?> getClass(Socket s, int length){
-			byte[] bf = new byte[length];
-			try {
-				s.getInputStream().read(bf);
-				NetworkClassLoader classLoader = (NetworkClassLoader) Message.class.getClassLoader();
-				return classLoader.load(bf);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			return null;
+
+	public static Class<?> getClass(Socket s, int length) {
+		byte[] bf = new byte[length];
+		try {
+			s.getInputStream().read(bf);
+			NetworkClassLoader classLoader = (NetworkClassLoader) Message.class
+					.getClassLoader();
+			return classLoader.load(bf);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 }
