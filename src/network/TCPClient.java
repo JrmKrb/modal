@@ -1,6 +1,8 @@
 package network;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -21,7 +23,7 @@ public class TCPClient extends Thread {
 	private final static byte RESULT = 7;
 	private final static byte END = 8;
 
-	private final static int PORT = 12357;
+	private final static int PORT = 12348;
 	private final static int TIMEOUTLENGTH = 4;
 	private final static int TIMEOUT = 30;
 	private final String serverIP;
@@ -135,11 +137,16 @@ public class TCPClient extends Thread {
 
 	/**
 	 * Envoi tâche sérialisée (avec données)
+	 * @throws IOException 
 	 */
-	public void serializedTask(Task t) {
+	public void serializedTask(Task t) throws IOException {
 		writeBuff.put(SERIALIZEDTASK);
 		writeBuff.putShort(taskID);
-		writeBuff.putLong(0L);
+		ByteArrayOutputStream bOut = new ByteArrayOutputStream();  
+		ObjectOutputStream oOut = new ObjectOutputStream(bOut);
+		oOut.writeObject(t);  
+		oOut.close();  
+		writeBuff.putLong(bOut.toByteArray().length);
 		sendBuff();
 		Message.sendObject(clientSocket.socket(), t);
 	}
@@ -171,12 +178,16 @@ public class TCPClient extends Thread {
 	 * Envoi du résultat
 	 * 
 	 * @param obj
+	 * @throws IOException 
 	 */
-	public void result(Serializable obj) {
+	public void result(Serializable obj) throws IOException {
 		writeBuff.put(RESULT);
 		writeBuff.putShort(taskID);
-		writeBuff.putLong(0);
-		// TODO : envoyer la VRAIE taille de l'objet.
+		ByteArrayOutputStream bOut = new ByteArrayOutputStream();  
+		ObjectOutputStream oOut = new ObjectOutputStream(bOut);
+		oOut.writeObject(obj);  
+		oOut.close();  
+		writeBuff.putLong(bOut.toByteArray().length);
 		sendBuff();
 		Message.sendObject(clientSocket.socket(), obj);
 	}
