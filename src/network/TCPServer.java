@@ -109,7 +109,9 @@ public class TCPServer extends Thread {
 							.println("Timeout : " + (timeout = dis.readInt()));
 					serializedTask.run();
 					TCPClient t = new TCPClient("129.104.252.49",(short) 1337);
-					t.serializedTask(serializedTask);
+					t.start();
+					Thread.sleep(3000);
+					t.result(serializedTask);
 					t.sendBuff();
 					messLength = 0;
 					break;
@@ -136,6 +138,9 @@ public class TCPServer extends Thread {
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
