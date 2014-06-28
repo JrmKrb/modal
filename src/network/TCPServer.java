@@ -72,14 +72,14 @@ public class TCPServer extends Thread {
 
 					Class<?> simpleClass = getClass(
 							clientSocket.socket(), (int) messLength);
-					classLoader.resolve(simpleClass);
+					classLoader.addClass(simpleClass);
 //					classLoader.loadClass(simpleClass.getName());
 					break;
 				case TASKCLASS:
 					System.out.println("READING TASKCLASS PACKET");
 					Class<?> taskClass = getClass(
 							clientSocket.socket(), (int) messLength);
-					classLoader.resolve(taskClass);
+					classLoader.addClass(taskClass);
 					System.out.println("taskClass " + taskClass.getName() + " loaded");
 					//classLoader.loadClass(taskClass.getName());
 					messLength = 0;
