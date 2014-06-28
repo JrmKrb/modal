@@ -85,6 +85,7 @@ public class TCPClient extends Thread {
 	public void intro() {
 		writeBuff.put(INTRO);
 		writeBuff.putShort(taskID);
+		writeBuff.putLong(0);
 	}
 
 	/**
@@ -132,6 +133,7 @@ public class TCPClient extends Thread {
 	public void ack() {
 		writeBuff.put(ACK);
 		writeBuff.putShort(taskID);
+		writeBuff.putLong(0);
 	}
 
 	/**
@@ -184,6 +186,7 @@ public class TCPClient extends Thread {
 	public void end() {
 		writeBuff.put(END);
 		writeBuff.putShort(taskID);
+		writeBuff.putLong(0);
 	}
 
 	// TODO : Outils de (dé)sérialisation dans un autre fichier
