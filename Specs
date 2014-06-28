@@ -36,6 +36,7 @@ Signifie la fin de la transaction.
 la classe subtask implémente l’interface Task (qui héritent les interfaces Runnable et Serializable)
 TASK_ID : identifie uniquement la tâche aux yeux du client
 LENGTH : le nombre d’octets du MSG
+Un message est consistué au minimum du type, de task_id et de length. msg est vide si et seulement length vaut 0.
 Après chaque envoi, on attend un ack de la part de l’autre.
 Si on n’a pas de ack, on tente de renvoyer.
 Si on n’a toujours pas de ack, on abandonne.
