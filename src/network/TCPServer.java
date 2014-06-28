@@ -46,7 +46,7 @@ public class TCPServer extends Thread {
 	public void run() {
 		try {
 			serverSocket = ServerSocketChannel.open();
-			serverSocket.bind(new InetSocketAddress("129.104.252.48", PORT));
+			serverSocket.bind(new InetSocketAddress("129.104.252.49", PORT));
 			System.out.println("Serveur en attente d'un client.");
 			clientSocket = serverSocket.accept();
 			System.out.println("Serveur en attente d'un message.");
