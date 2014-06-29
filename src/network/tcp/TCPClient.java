@@ -60,18 +60,26 @@ public class TCPClient extends NetworkInterface {
 			clientSocket.connect(remote);
 			System.out.println("Client connected to " + remote.getAddress() + ":" + remote.getPort() + "\n");
 			sendIntro();
+			waitForAck();
+			System.out.println("Intro sent");
 			if (classes != null) {
-				for (int i = 0; i < classes.length - 1; i++)
+				for (int i = 0; i < classes.length - 1; i++) {
 					sendClass(classes[i]);
+					System.out.println("Class "+classes[i]+" sent.");
+				}
 				String taskClass = classes[classes.length - 1];
 				sendTask(taskClass);
+				System.out.println("Task sent.");
 				waitForAck();
 				sendSerializedTask(instanceOfTask);
+				System.out.println("Serialized Task sent.");
 				waitForAck();
 				askForExecution();
+				System.out.println("Execution asked.");
 				waitForAck();
 			} else {
 				sendResult();
+				System.out.println("Result sent.");
 				waitForAck();
 			}
 		}
@@ -81,7 +89,8 @@ public class TCPClient extends NetworkInterface {
 		}
 	}
 
-	private void waitForAck() {
+	private boolean waitForAck() {
+		System.out.println("Waiting for ACK.");
 		DataInputStream dis;
 		try {
 			dis = new DataInputStream(clientSocket.socket().getInputStream());
@@ -92,9 +101,11 @@ public class TCPClient extends NetworkInterface {
 			long messLength = dis.readLong();
 			byte[] message = new byte[(int) messLength];
 			dis.read(message);
+			return true;
 		}
 		catch (IOException e) {
 			System.out.println("Error while waiting for ACK packet : " + e.getMessage());
+			return false;
 		}
 
 	}
@@ -108,7 +119,6 @@ public class TCPClient extends NetworkInterface {
 		try {
 			writeBuff.flip();
 			clientSocket.write(writeBuff);
-			System.out.println("Buff sent");
 			writeBuff.clear();
 			return true;
 		}

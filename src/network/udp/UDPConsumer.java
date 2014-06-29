@@ -1,7 +1,9 @@
 package network.udp;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.nio.charset.StandardCharsets;
@@ -11,10 +13,24 @@ import network.NetworkInterface;
 
 public class UDPConsumer extends NetworkInterface {
 
-	private HashMap<InetSocketAddress, Integer>	networkList	= new HashMap<InetSocketAddress, Integer>();
-	private static DatagramChannel				hostSocket;
-	public final static int						FREE		= 0;
-	public final static int						BUSY		= 1;
+	private HashMap<String, Integer>	networkList	= new HashMap<String, Integer>();
+	private DatagramChannel				hostSocket;
+	public final static int				FREE		= 0;
+	public final static int				BUSY		= 1;
+	private InetSocketAddress			serverISA;
+
+	public UDPConsumer() {
+		try {
+			serverISA = new InetSocketAddress(InetAddress.getLocalHost().getHostAddress(), PORT);
+		}
+		catch (UnknownHostException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public UDPConsumer(InetSocketAddress isa) {
+		serverISA = isa;
+	}
 
 	/**
 	 * 
@@ -23,7 +39,8 @@ public class UDPConsumer extends NetworkInterface {
 	public void run() {
 		try {
 			hostSocket = DatagramChannel.open();
-			hostSocket.bind(new InetSocketAddress(PORT));
+			hostSocket.bind(serverISA);
+			whoIsOnline();
 			System.out.println("UDP Consumer listening on " + hostSocket.getLocalAddress());
 			ByteBuffer buff = ByteBuffer.allocate(22);
 			while (true) {
@@ -36,7 +53,7 @@ public class UDPConsumer extends NetworkInterface {
 					buff.rewind();
 					if (!received.startsWith("WHOISONLINE")) {
 						int busy = buff.get();
-						networkList.put(remote, busy);
+						networkList.put(remote.getAddress().getHostAddress(), busy);
 						int nbTasks = buff.getShort();
 						short[] tasks = new short[nbTasks];
 						for (int i = 0; i < nbTasks; i++)
@@ -71,12 +88,12 @@ public class UDPConsumer extends NetworkInterface {
 		}
 	}
 
-	
 	/**
 	 * Answer to a ping request
+	 * 
 	 * @param remote
 	 */
-	public static void pingAnswer(InetSocketAddress remote) {
+	public void pingAnswer(InetSocketAddress remote) {
 		try {
 			// 0 if free, 1 if busy TODO : Busy
 			// TODO taskID
@@ -91,11 +108,10 @@ public class UDPConsumer extends NetworkInterface {
 		}
 	}
 
-	
 	/**
 	 * @return
 	 */
-	public HashMap<InetSocketAddress, Integer> getNetworkList() {
+	public HashMap<String, Integer> getNetworkList() {
 		return networkList;
 	}
 }

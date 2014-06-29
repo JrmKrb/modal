@@ -35,7 +35,8 @@ public class TCPServer extends NetworkInterface {
 			Task serializedTask = null;
 			NetworkClassLoader classLoader = new NetworkClassLoader(TCPServer.class.getClassLoader());
 			System.out.println("TCPServer waiting for message from " + clientSocket.getRemoteAddress());
-			while (true) {
+			boolean running = true;
+			while (running) {
 				byte tempType = dis.readByte();
 				short tempTaskID = dis.readShort();
 				System.out.println("taskID : " + tempTaskID + "\n");
@@ -93,7 +94,7 @@ public class TCPServer extends NetworkInterface {
 						break;
 					case END:
 						System.out.println("READING END CONNECTION PACKET");
-						// TODO endConnection
+						running = false;
 						break;
 					default:
 						System.out.println("Wrong packet received. Nothing is done.");
@@ -101,15 +102,17 @@ public class TCPServer extends NetworkInterface {
 				}
 
 				// Reading message :
-
-				byte[] message = new byte[(int) messLength];
-				dis.read(message);
-				System.out.println(new String(message, "UTF-16BE") + "\nPACKET RECEIVED => Waiting for another one\n\n");
-				ack(tempTaskID, clientSocket);
+				if (messLength != 0) {
+					byte[] message = new byte[(int) messLength];
+					dis.read(message);
+					System.out.print(new String(message, "UTF-16BE"));
+				}
+				System.out.print("\nENDPACKET\n\n");
+				if (running) ack(tempTaskID, clientSocket);
 			}
 		}
 		catch (EOFException e) {
-			System.out.println("Connexion terminée.\n");
+			System.out.println("Connexion terminée : "+e.getMessage());
 		}
 		catch (IOException e) {
 			System.out.println("IOEXception : " + e.getMessage());
@@ -118,7 +121,7 @@ public class TCPServer extends NetworkInterface {
 			System.out.println("Classe non trouvée :\n" + e.getMessage());
 		}
 		catch (InterruptedException e) {
-			System.out.println("Thread d'envoi de résultat interrompu.");
+			System.out.println("Thread d'envoi de résultat interrompu : "+e.getMessage());
 		}
 	}
 

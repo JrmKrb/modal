@@ -11,9 +11,9 @@ public class TestServer {
 	 */
 	public static void main(String[] args) {
 
-		UDPConsumer udpT = new UDPConsumer();
+		UDPConsumer udpT = new UDPConsumer(new InetSocketAddress("192.168",12347));
 		udpT.start();
-		Server TCPserver = new Server(new InetSocketAddress("129.104.221.49",12347));
+		Server TCPserver = new Server(new InetSocketAddress("192.168",12347));
 		TCPserver.start();
 
 	}

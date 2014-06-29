@@ -1,7 +1,9 @@
 package network.udp;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.nio.charset.StandardCharsets;
@@ -9,7 +11,21 @@ import network.NetworkInterface;
 
 public class UDPSupplier extends NetworkInterface {
 
-	private static DatagramChannel	hostSocket;
+	private DatagramChannel		hostSocket;
+	private InetSocketAddress	serverISA;
+
+	public UDPSupplier() {
+		try {
+			serverISA = new InetSocketAddress(InetAddress.getLocalHost().getHostAddress(), PORT);
+		}
+		catch (UnknownHostException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public UDPSupplier(InetSocketAddress isa) {
+		serverISA = isa;
+	}
 
 	/**
 	 * 
@@ -18,7 +34,7 @@ public class UDPSupplier extends NetworkInterface {
 	public void run() {
 		try {
 			hostSocket = DatagramChannel.open();
-			hostSocket.bind(new InetSocketAddress(12347));
+			hostSocket.bind(serverISA);
 			System.out.println("UDP Supplier listening on : " + hostSocket.getLocalAddress());
 			ByteBuffer buff = ByteBuffer.allocate(22);
 			while (true) {
@@ -47,9 +63,10 @@ public class UDPSupplier extends NetworkInterface {
 
 	/**
 	 * Answer to a ping request
+	 * 
 	 * @param remote
 	 */
-	public static void pingAnswer(InetSocketAddress remote) {
+	public void pingAnswer(InetSocketAddress remote) {
 		try {
 			ByteBuffer buff = ByteBuffer.allocate(3);
 			buff.put((byte) FREE);
