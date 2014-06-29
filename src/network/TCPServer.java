@@ -35,6 +35,7 @@ public class TCPServer extends Thread implements NetworkInterface {
 						System.out.println("READING SIMPLECLASS PACKET");
 						Class<?> simpleClass = getClass(clientSocket.socket(), (int) messLength);
 						classLoader.addClass(simpleClass);
+						System.out.println("simpleClass " + simpleClass.getName() + " loaded.");
 						messLength = 0;
 						break;
 					case TASKCLASS:
