@@ -5,8 +5,8 @@ Serveur : celui qui fait les gros calculs et renvoie les résultats
 Port normalisé (serveur quand il écoute ; client quand il écoute) : 12347
 Time to live (durée avant laquelle on renvoie le message précédent, en supposant que le destinataire ne l’a pas reçu) :
 
-CAN : Broadcast udp (pour découvrir les clients) sur le port 12347, mais pas obligatoire
-(udp) Client envoie une demande sur le port 12347 “WHOISONLINE” UTF16BE
+Possibilité : broadcast udp (pour découvrir les clients) sur le port 12347. Implémentation non obligatoire.
+(udp) Client envoie une demande sur le port 12347 "WHOISONLINE" UTF16BE
 (udp) Serveur répond soit 0 libre 1 occupé (pas de tâche supplémentaire) puis liste de tâche :
 un octet unsigned int | deux octets : nombre de tâches | identifiant des tâches, chacune sur deux octets
 
@@ -14,6 +14,8 @@ Si libre :
 	Le client peut ouvrir une connexion tcp vers le serveur selon le protocole suivant.
 Si occupé :
 	Le client ne doit pas ouvrir de connexion tcp.
+
+Les messages sont composés des champs suivants :
 
 TYPE(1 OCTET UINT BE)    TASK_ID(2 OCTETS UINT BE) LENGTH(8 OCTETS UINT BE)    MSG
 0 (CS: introduction)   							 
@@ -33,10 +35,14 @@ L'exécution n'a pas pu avoir lieu (manque des bibliothèques, erreur interne...
 8 (CS: end)   								 
 Signifie la fin de la transaction.
 
-la classe subtask implémente l’interface Task (qui héritent les interfaces Runnable et Serializable)
+La classe subtask implémente l’interface Task (qui héritent les interfaces Runnable et Serializable). Cette interface est connue de tous :
+  package Tasks;
+  import java.io.Serializable;
+  public interface Task extends Serializable, Runnable {}
+
 TASK_ID : identifie uniquement la tâche aux yeux du client
 LENGTH : le nombre d’octets du MSG
-Un message est consistué au minimum du type, de task_id et de length. msg est vide si et seulement length vaut 0.
+Un message est consistué au minimum du type, de task_id et de length. msg est vide si et seulement length vaut 0. Pour certains messages, la longueur est toujours nulle et le message toujours vide dans cette version du protocole.
 Après chaque envoi, on attend un ack de la part de l’autre.
 Si on n’a pas de ack, on tente de renvoyer.
 Si on n’a toujours pas de ack, on abandonne.
