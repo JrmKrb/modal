@@ -1,7 +1,10 @@
 package application;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import network.TCPClient;
+import tasks.Task;
+import tasks.testTask;
 
 public class testClient {
 
@@ -15,20 +18,6 @@ public class testClient {
 		// Server in order to get the result
 		Server TCPserver = new Server();
 		TCPserver.start();
-
-		TCPClient client = new TCPClient((short) 1337);
-		client.start();
-		Thread.sleep(3000);
-		client.intro();
-		client.error("DEBUT DE CONNEXION.");
-		client.sendBuff();
-		client.sendClass("bin/application/Doublet.class");
-		client.sendTask("bin/application/testTask.class");
-		client.sendSerializedTask(new testTask());
-		client.sendBuff();
-		client.execute();
-		client.sendBuff();
-		// TCPClient.sendTask("bin/application/sumTask.class");
 
 	}
 

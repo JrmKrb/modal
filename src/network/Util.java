@@ -2,12 +2,13 @@ package network;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
-import application.Task;
+import tasks.Task;
 
 public class Util {
 
@@ -46,26 +47,23 @@ public class Util {
 		return null;
 	}
 
-	public static void sendResult(final Task t, String remoteIP, short taskID) {
-		final TCPClient remoteConnection = new TCPClient(taskID);
+	public static void sendResult(final Task t, InetSocketAddress remoteIP, short taskID) {
+		System.out.println("Tentative de connection sur "+remoteIP+".");
+		final TCPClient remoteConnection = new TCPClient(taskID, remoteIP);
 		remoteConnection.start();
-		new Thread() {
-
-			public void run() {
-				try {
-					Thread.sleep(1000);
-					remoteConnection.intro();
-					remoteConnection.sendBuff();
-					remoteConnection.result(t);
-				}
-				catch (IOException e) {
-					e.printStackTrace();
-				}
-				catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-		}.start();
+		try {
+			Thread.sleep(1000);
+			remoteConnection.intro();
+			remoteConnection.sendBuff();
+			remoteConnection.result(t);
+			System.out.println("Résultat envoyé !");
+		}
+		catch (IOException e) {
+			e.printStackTrace();
+		}
+		catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 
 	}
 

@@ -15,7 +15,7 @@ public interface NetworkInterface {
 	final static int	TIMEOUTLENGTH	= 4;
 	final static int	TIMEOUT			= 30;
 
-	final static int	PORT			= 12357;
+	final static int	PORT			= 12347;
 	final static String	REMOTEIP		= "129.104.221.49" ;
 
 }

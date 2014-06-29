@@ -1,18 +1,23 @@
 package network;
 
 import java.io.DataInputStream;
+import java.io.EOFException;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
-import application.Task;
+import tasks.Task;
 import application.testClient;
 
 public class TCPServer extends Thread implements NetworkInterface {
 
 	private SocketChannel	clientSocket;
+	private ByteBuffer writeBuff;
 
 	public TCPServer(SocketChannel c) {
 		clientSocket = c;
+		writeBuff = ByteBuffer.allocate(1024000);
 	}
 
 	public void run() {
@@ -33,14 +38,14 @@ public class TCPServer extends Thread implements NetworkInterface {
 						break;
 					case SIMPLECLASS:
 						System.out.println("READING SIMPLECLASS PACKET");
-						Class<?> simpleClass = getClass(clientSocket.socket(), (int) messLength);
+						Class<?> simpleClass = getClass(clientSocket.socket(), (int) messLength, classLoader);
 						classLoader.addClass(simpleClass);
 						System.out.println("simpleClass " + simpleClass.getName() + " loaded.");
 						messLength = 0;
 						break;
 					case TASKCLASS:
 						System.out.println("READING TASKCLASS PACKET");
-						Class<?> taskClass = getClass(clientSocket.socket(), (int) messLength);
+						Class<?> taskClass = getClass(clientSocket.socket(), (int) messLength, classLoader);
 						classLoader.addClass(taskClass);
 						System.out.println("taskClass " + taskClass.getName() + " loaded.");
 						messLength = 0;
@@ -60,7 +65,7 @@ public class TCPServer extends Thread implements NetworkInterface {
 						long timeout;
 						System.out.println("Timeout : " + (timeout = dis.readInt()));
 						serializedTask.run();
-						Util.sendResult(serializedTask, clientSocket.getRemoteAddress().toString(), tempTaskID);
+						Util.sendResult(serializedTask, ((InetSocketAddress) clientSocket.getRemoteAddress()), tempTaskID);
 						messLength = 0;
 						break;
 					case EXECERROR:
@@ -88,7 +93,11 @@ public class TCPServer extends Thread implements NetworkInterface {
 				byte[] message = new byte[(int) messLength];
 				dis.read(message);
 				System.out.println(new String(message, "UTF-16BE") + "\nPACKET RECEIVED => Waiting for another one\n\n");
+				ack(tempTaskID,clientSocket);
 			}
+		}
+		catch (EOFException e) {
+			e.printStackTrace();
 		}
 		catch (IOException e) {
 			e.printStackTrace();
@@ -98,16 +107,29 @@ public class TCPServer extends Thread implements NetworkInterface {
 		}
 	}
 
-	public static Class<?> getClass(Socket s, int length) {
+	public static Class<?> getClass(Socket s, int length, NetworkClassLoader nlc) {
 		byte[] bf = new byte[length];
 		try {
 			s.getInputStream().read(bf);
-			NetworkClassLoader classLoader = new NetworkClassLoader(TCPServer.class.getClassLoader());
-			return classLoader.load(bf);
+			return nlc.load(bf);
 		}
 		catch (IOException e) {
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+
+	/**
+	 * Envoi Acknowledgment
+	 * @throws IOException 
+	 */
+	public void ack(short taskID, SocketChannel s) throws IOException {
+		writeBuff.put(ACK);
+		writeBuff.putShort(taskID);
+		writeBuff.putLong(0L);
+		writeBuff.flip();
+		s.write(writeBuff);
+		writeBuff.clear();
 	}
 }

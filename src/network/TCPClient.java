@@ -9,13 +9,14 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.file.Paths;
-import application.Task;
+import tasks.Task;
 
 public class TCPClient extends Thread implements NetworkInterface {
 
 	private static ByteBuffer	writeBuff;
 	public SocketChannel		clientSocket;
 
+	private InetSocketAddress				remoteIP;
 	private short				taskID;
 
 	/**
@@ -24,8 +25,9 @@ public class TCPClient extends Thread implements NetworkInterface {
 	 * @param port
 	 * @param taskID
 	 */
-	public TCPClient(short taskID) {
+	public TCPClient(short taskID, InetSocketAddress remoteIP) {
 		this.taskID = taskID;
+		this.remoteIP = remoteIP;
 		writeBuff = ByteBuffer.allocate(1024000);
 	}
 
@@ -33,7 +35,7 @@ public class TCPClient extends Thread implements NetworkInterface {
 		try {
 			clientSocket = SocketChannel.open();
 			clientSocket.bind(new InetSocketAddress(0));
-			InetSocketAddress remote = new InetSocketAddress(REMOTEIP, PORT);
+			InetSocketAddress remote = new InetSocketAddress(remoteIP.getAddress(), 12348);
 			clientSocket.connect(remote);
 			System.out.println("Client connected to " + remote.getAddress() + ":" + remote.getPort() + "\n");
 			while (true)
@@ -112,15 +114,6 @@ public class TCPClient extends Thread implements NetworkInterface {
 			writeBuff.clear();
 			e.printStackTrace();
 		}
-	}
-
-	/**
-	 * Envoi Acknowledgment
-	 */
-	public void ack() {
-		writeBuff.put(ACK);
-		writeBuff.putShort(taskID);
-		writeBuff.putLong(0L);
 	}
 
 	/**

@@ -7,14 +7,14 @@ import java.nio.channels.DatagramChannel;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 
-public class UDP {
+public class UDP extends Thread {
 	private HashMap<InetSocketAddress, Integer> networkList = new HashMap<InetSocketAddress, Integer>();
 	private Thread listenerThread;
 	private static DatagramChannel hostSocket;
 	public final static int FREE = 0;
 	public final static int BUSY = 1;
-
-	public UDP() {
+	
+	public void run() {
 		try {
 			hostSocket = DatagramChannel.open();
 			hostSocket.bind(new InetSocketAddress(12357));
@@ -26,7 +26,7 @@ public class UDP {
 		listenerThread.start();
 		System.out.println("ListenerThread appelé");
 	}
-
+	
 	public void whoIsOnline() {
 		try {
 			ByteBuffer writeBuff = ByteBuffer.allocate(22);
