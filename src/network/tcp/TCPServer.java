@@ -1,6 +1,7 @@
 package network.tcp;
 
 import java.io.DataInputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -106,6 +107,9 @@ public class TCPServer extends NetworkInterface {
 				System.out.println(new String(message, "UTF-16BE") + "\nPACKET RECEIVED => Waiting for another one\n\n");
 				ack(tempTaskID, clientSocket);
 			}
+		}
+		catch (EOFException e) {
+			System.out.println("Connexion terminée.\n");
 		}
 		catch (IOException e) {
 			System.out.println("IOEXception : " + e.getMessage());
