@@ -17,9 +17,9 @@ public class TestClient {
 		Server TCPserver = new Server();
 		TCPserver.start();
 
-		String[] classes = {"bin/tasks/Doublet.class","bin/tasks/Task.java"};
+		String[] classes = {"bin/tasks/Pair.class","bin/tasks/TestTask.class"};
 		
-		TCPClient client = new TCPClient((short) 1337, "129.104.221.49", classes);
+		TCPClient client = new TCPClient((short) 1337, "129.104.221.49", classes, new TestTask());
 		client.start();
 
 	}

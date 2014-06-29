@@ -22,23 +22,27 @@ public class TCPClient extends NetworkInterface {
 	private short				taskID;
 
 	private String[]			classes;
+	private Task				instanceOfTask;
 	private Task				result;
 
-	public TCPClient(short taskID, InetSocketAddress remoteIP, String[] classes) {
+	public TCPClient(short taskID, InetSocketAddress remoteIP, String[] classes, Task t) {
+		writeBuff = ByteBuffer.allocate(1024000);
 		this.taskID = taskID;
 		this.remoteIP = remoteIP;
-		writeBuff = ByteBuffer.allocate(1024000);
 		this.classes = classes;
+		instanceOfTask = t;
 	}
 
-	public TCPClient(short taskID, String remoteIP, String[] classes) {
+	public TCPClient(short taskID, String remoteIP, String[] classes, Task t) {
+		writeBuff = ByteBuffer.allocate(1024000);
 		this.taskID = taskID;
 		this.remoteIP = new InetSocketAddress(remoteIP, PORT);
-		writeBuff = ByteBuffer.allocate(1024000);
 		this.classes = classes;
+		instanceOfTask = t;
 	}
 
 	public TCPClient(short taskID, InetSocketAddress remoteIP, Task t) {
+		writeBuff = ByteBuffer.allocate(1024000);
 		this.taskID = taskID;
 		this.remoteIP = remoteIP;
 		result = t;
@@ -52,6 +56,7 @@ public class TCPClient extends NetworkInterface {
 			clientSocket = SocketChannel.open();
 			clientSocket.bind(new InetSocketAddress(0));
 			InetSocketAddress remote = new InetSocketAddress(remoteIP.getAddress(), PORT);
+			System.out.println("Trying to connect to " + remote + ".");
 			clientSocket.connect(remote);
 			System.out.println("Client connected to " + remote.getAddress() + ":" + remote.getPort() + "\n");
 			sendIntro();
@@ -61,13 +66,8 @@ public class TCPClient extends NetworkInterface {
 				String taskClass = classes[classes.length - 1];
 				sendTask(taskClass);
 				waitForAck();
-				try {
-					sendSerializedTask(TCPClient.class.getClassLoader().loadClass(taskClass).newInstance());
-					waitForAck();
-				}
-				catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-					System.out.println("Error : Serialized Task sending : " + e.getMessage());
-				}
+				sendSerializedTask(instanceOfTask);
+				waitForAck();
 				askForExecution();
 				waitForAck();
 			} else {
