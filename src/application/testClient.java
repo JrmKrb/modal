@@ -1,10 +1,9 @@
 package application;
 
-import java.net.InetSocketAddress;
 import network.tcp.Server;
 import network.tcp.TCPClient;
 import tasks.Task;
-import tasks.testTask;
+import tasks.TestTask;
 
 public class TestClient {
 
@@ -20,7 +19,7 @@ public class TestClient {
 
 		String[] classes = {"bin/tasks/Doublet.class","bin/tasks/Task.java"};
 		
-		TCPClient client = new TCPClient((short) 1337, "192.168.1.27", classes);
+		TCPClient client = new TCPClient((short) 1337, "129.104.221.49", classes);
 		client.start();
 
 	}
@@ -29,7 +28,7 @@ public class TestClient {
 	 * @param readObject
 	 */
 	public static void treatResult(Task readObject) {
-		testTask temp = (testTask) readObject;
+		TestTask temp = (TestTask) readObject;
 		System.out.println("External calculus done. Result : " + temp.result);
 	}
 }
