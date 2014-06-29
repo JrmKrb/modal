@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /* defineClass is protected, that's why we have to create our own custom class. */
-class NetworkClassLoader extends ClassLoader {
+public class NetworkClassLoader extends ClassLoader {
 
 	private Map<String, Class<?>>	table;
 

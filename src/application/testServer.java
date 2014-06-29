@@ -1,7 +1,7 @@
 package application;
 import java.io.IOException;
-import network.Server;
-import network.UDPConsumer;
+import network.tcp.Server;
+import network.udp.UDPConsumer;
 
 public class testServer {
 

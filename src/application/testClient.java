@@ -2,8 +2,8 @@ package application;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import network.Server;
-import network.TCPClient;
+import network.tcp.Server;
+import network.tcp.TCPClient;
 import tasks.Task;
 import tasks.testTask;
 
