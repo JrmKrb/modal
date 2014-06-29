@@ -128,7 +128,7 @@ public class TCPClient extends Thread implements NetworkInterface {
 	 * 
 	 * @throws IOException
 	 */
-	public void serializedTask(Task t) throws IOException {
+	public void sendSerializedTask(Task t) throws IOException {
 		writeBuff.put(SERIALIZEDTASK);
 		writeBuff.putShort(taskID);
 		ByteArrayOutputStream bOut = new ByteArrayOutputStream();

@@ -15,7 +15,6 @@ public class testClient {
 		// Server in order to get the result
 		Server TCPserver = new Server();
 		TCPserver.start();
-		Thread.sleep(3000);
 
 		TCPClient client = new TCPClient((short) 1337);
 		client.start();
@@ -23,9 +22,9 @@ public class testClient {
 		client.intro();
 		client.error("DEBUT DE CONNEXION.");
 		client.sendBuff();
+		client.sendClass("bin/application/Doublet.class");
 		client.sendTask("bin/application/testTask.class");
-		client.sendBuff();
-		client.serializedTask(new testTask());
+		client.sendSerializedTask(new testTask());
 		client.sendBuff();
 		client.execute();
 		client.sendBuff();

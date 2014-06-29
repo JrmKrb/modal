@@ -5,14 +5,14 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.util.LinkedList;
+import network.NetworkInterface;
 import network.TCPServer;
 
-public class Server extends Thread {
+public class Server extends Thread implements NetworkInterface {
 
-	private ServerSocketChannel		serverSocket;
-	private LinkedList<TCPServer>	socketsList;
-	private final static int		PORT	= 12357;
+	private ServerSocketChannel	serverSocket;
+
+	// private LinkedList<TCPServer> socketsList;
 
 	public void run() {
 		try {
@@ -23,7 +23,7 @@ public class Server extends Thread {
 				SocketChannel clientSocket = serverSocket.accept();
 				System.out.println("Nouvelle connexion de : " + clientSocket.getRemoteAddress());
 				TCPServer temp = new TCPServer(clientSocket);
-				socketsList.add(temp);
+				// socketsList.add(temp);
 				temp.start();
 			}
 		}
