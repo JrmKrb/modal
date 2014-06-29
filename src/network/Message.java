@@ -32,7 +32,7 @@ public class Message {
 		}
 	}
 
-	public static Object getObject(Socket s, ClassLoader classLoader) {
+	public static Object getObject(Socket s, NetworkClassLoader classLoader) {
 		try {
 			ClassLoaderObjectInputStream in = new ClassLoaderObjectInputStream(classLoader,s.getInputStream());
 			return (Object) in.readObject();

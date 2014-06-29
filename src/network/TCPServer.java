@@ -8,7 +8,6 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 
 import application.Task;
-import application.sumTask;
 
 public class TCPServer extends Thread {
 	private final static byte INTRO = 0;
@@ -28,7 +27,6 @@ public class TCPServer extends Thread {
 
 	// TODO : Finir le Thread listener et faire le classLoader
 
-	
 	public static Class<?> getClass(Socket s, int length) {
 		byte[] bf = new byte[length];
 		try {
@@ -42,17 +40,20 @@ public class TCPServer extends Thread {
 		}
 		return null;
 	}
-	
+
 	public void run() {
 		try {
 			serverSocket = ServerSocketChannel.open();
-			serverSocket.bind(new InetSocketAddress("129.104.252.49", PORT));
-			System.out.println("Serveur en attente d'un client.");
+			serverSocket.bind(new InetSocketAddress("129.104.222.47", PORT));
+			System.out.println("Serveur en attente d'un client sur "
+					+ serverSocket.getLocalAddress());
 			clientSocket = serverSocket.accept();
 			System.out.println("Serveur en attente d'un message.");
 			DataInputStream dis = new DataInputStream(clientSocket.socket()
 					.getInputStream());
 			Task serializedTask = null;
+			NetworkClassLoader classLoader = new NetworkClassLoader(
+					TCPServer.class.getClassLoader());
 			while (true) {
 				System.out.println("Waiting for Type");
 				byte tempType = dis.readByte();
@@ -62,7 +63,6 @@ public class TCPServer extends Thread {
 				System.out.println("taskID : " + tempTaskID + "\n");
 				long messLength = dis.readLong();
 				System.out.println("Taille message : " + messLength);
-				NetworkClassLoader classLoader = new NetworkClassLoader(TCPServer.class.getClassLoader());
 				switch (tempType) {
 				case INTRO:
 					System.out.println("READING INTRO PACKET");
@@ -70,37 +70,29 @@ public class TCPServer extends Thread {
 				case SIMPLECLASS:
 					System.out.println("READING SIMPLECLASS PACKET");
 
-					Class<?> simpleClass = getClass(
-							clientSocket.socket(), (int) messLength);
+					Class<?> simpleClass = getClass(clientSocket.socket(),
+							(int) messLength);
 					classLoader.addClass(simpleClass);
-//					classLoader.loadClass(simpleClass.getName());
 					break;
 				case TASKCLASS:
 					System.out.println("READING TASKCLASS PACKET");
-					Class<?> taskClass = getClass(
-							clientSocket.socket(), (int) messLength);
+					Class<?> taskClass = getClass(clientSocket.socket(),
+							(int) messLength);
 					classLoader.addClass(taskClass);
-					System.out.println("taskClass " + taskClass.getName() + " loaded");
-					//classLoader.loadClass(taskClass.getName());
+					System.out.println("taskClass " + taskClass.getName()
+							+ " loaded.");
 					messLength = 0;
-					
-					// TODO: ?
-					// path = "bin/SumTask.class";
-					// fc = new FileOutputStream(new File(path)).getChannel();
-					// fc.transferFrom(clientSocket, 0, messLength);
-					// Class<?> loadedClass =
-					// classLoader.loadClass("application.sumTask");
 
 				case ACK:
 					System.out.println("READING ACK PACKET");
 					break;
 				case SERIALIZEDTASK:
 					System.out.println("READING SERIALIZEDTASK PACKET");
-					ClassLoaderObjectInputStream in = new ClassLoaderObjectInputStream(classLoader,clientSocket.socket().getInputStream());
-					System.out.println("try to read object");
-					serializedTask  = (Task) in.readObject();
-//					serializedTask = (Task) Message.getObject(clientSocket
-//							.socket());
+					ClassLoaderObjectInputStream in = new ClassLoaderObjectInputStream(
+							classLoader, clientSocket.socket().getInputStream());
+					System.out.println("Try to read object : ");
+					serializedTask = (Task) in.readObject();
+					messLength = 0;
 					break;
 				case EXEC:
 					System.out.println("READING EXEC PACKET");
@@ -108,7 +100,7 @@ public class TCPServer extends Thread {
 					System.out
 							.println("Timeout : " + (timeout = dis.readInt()));
 					serializedTask.run();
-					TCPClient t = new TCPClient("129.104.252.49",(short) 1337);
+					TCPClient t = new TCPClient("129.104.252.49", (short) 1337);
 					t.start();
 					Thread.sleep(3000);
 					t.result(serializedTask);
@@ -120,8 +112,9 @@ public class TCPServer extends Thread {
 					break;
 				case RESULT:
 					System.out.println("READING RESULT PACKET");
-					sumTask o1 = (sumTask) Message.getObject(clientSocket.socket(),classLoader);
-//					System.out.println("Resultat Recu : "+o1.result);
+					// sumTask o1 = (sumTask)
+					// Message.getObject(clientSocket.socket(),classLoader);
+					// System.out.println("Resultat Recu : "+o1.result);
 					break;
 				case END:
 					System.out.println("READING END CONNECTION PACKET");
@@ -131,7 +124,7 @@ public class TCPServer extends Thread {
 				// On lit le message :
 
 				byte[] message = new byte[(int) messLength];
-			dis.read(message);
+				dis.read(message);
 				System.out.println(new String(message, "UTF-16BE")
 						+ "\nPACKET RECEIVED => Go to next one\n\n");
 			}

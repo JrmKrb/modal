@@ -36,7 +36,7 @@ import java.io.StreamCorruptedException;
 public class ClassLoaderObjectInputStream extends ObjectInputStream {
 
     /** The class loader to use. */
-    private final ClassLoader classLoader;
+    private final NetworkClassLoader classLoader;
 
     /**
      * Constructs a new ClassLoaderObjectInputStream.
@@ -47,7 +47,7 @@ public class ClassLoaderObjectInputStream extends ObjectInputStream {
      * @throws StreamCorruptedException if the stream is corrupted
      */
     public ClassLoaderObjectInputStream(
-            ClassLoader classLoader, InputStream inputStream)
+            NetworkClassLoader classLoader, InputStream inputStream)
             throws IOException, StreamCorruptedException {
         super(inputStream);
         this.classLoader = classLoader;
@@ -66,13 +66,13 @@ public class ClassLoaderObjectInputStream extends ObjectInputStream {
     protected Class<?> resolveClass(ObjectStreamClass objectStreamClass)
             throws IOException, ClassNotFoundException {
         
-        Class<?> clazz = Class.forName(objectStreamClass.getName(), false, classLoader);
+        Class<?> clazz = classLoader.findClass(objectStreamClass.getName());
 
         if (clazz != null) {
             // the classloader knows of the class
             return clazz;
         } else {
-            // classloader knows not of class, let the super classloader do it
+            // Otherwise, let the super classloader do it
             return super.resolveClass(objectStreamClass);
         }
     }
