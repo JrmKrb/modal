@@ -1,7 +1,6 @@
 package network.tcp;
 
 import java.io.DataInputStream;
-import java.io.EOFException;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -9,7 +8,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import lib.ClassLoaderObjectInputStream;
 import lib.NetworkClassLoader;
-import lib.Util;
 import network.NetworkInterface;
 import tasks.Task;
 import application.TestClient;
@@ -72,10 +70,11 @@ public class TCPServer extends NetworkInterface {
 						break;
 					case EXEC:
 						System.out.println("READING EXEC PACKET");
-						long timeout;
-						System.out.println("Timeout : " + (timeout = dis.readInt()));
+						System.out.println("Timeout : " + dis.readInt());
 						serializedTask.run();
-						Util.sendResult(serializedTask, ((InetSocketAddress) clientSocket.getRemoteAddress()), tempTaskID);
+						Thread resultSenderThread = new TCPClient((short) tempTaskID, (InetSocketAddress) clientSocket.getRemoteAddress(), serializedTask);
+						resultSenderThread.start();
+						resultSenderThread.join();
 						messLength = 0;
 						break;
 					case EXECERROR:
@@ -108,14 +107,14 @@ public class TCPServer extends NetworkInterface {
 				ack(tempTaskID, clientSocket);
 			}
 		}
-		catch (EOFException e) {
-			e.printStackTrace();
-		}
 		catch (IOException e) {
-			e.printStackTrace();
+			System.out.println("IOEXception : " + e.getMessage());
 		}
 		catch (ClassNotFoundException e) {
-			e.printStackTrace();
+			System.out.println("Classe non trouvée :\n" + e.getMessage());
+		}
+		catch (InterruptedException e) {
+			System.out.println("Thread d'envoi de résultat interrompu.");
 		}
 	}
 

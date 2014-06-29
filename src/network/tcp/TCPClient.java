@@ -3,7 +3,6 @@ package network.tcp;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
@@ -21,16 +20,27 @@ public class TCPClient extends NetworkInterface {
 	private InetSocketAddress	remoteIP;
 	private short				taskID;
 
-	/**
-	 * 
-	 * @param ip
-	 * @param port
-	 * @param taskID
-	 */
-	public TCPClient(short taskID, InetSocketAddress remoteIP) {
+	private String[]			classes;
+	private Task				result;
+
+	public TCPClient(short taskID, InetSocketAddress remoteIP, String[] classes) {
 		this.taskID = taskID;
 		this.remoteIP = remoteIP;
 		writeBuff = ByteBuffer.allocate(1024000);
+		this.classes = classes;
+	}
+
+	public TCPClient(short taskID, String remoteIP, String[] classes) {
+		this.taskID = taskID;
+		this.remoteIP = new InetSocketAddress(remoteIP, PORT);
+		writeBuff = ByteBuffer.allocate(1024000);
+		this.classes = classes;
+	}
+
+	public TCPClient(short taskID, InetSocketAddress remoteIP, Task t) {
+		this.taskID = taskID;
+		this.remoteIP = remoteIP;
+		result = t;
 	}
 
 	/**
@@ -40,11 +50,23 @@ public class TCPClient extends NetworkInterface {
 		try {
 			clientSocket = SocketChannel.open();
 			clientSocket.bind(new InetSocketAddress(0));
-			InetSocketAddress remote = new InetSocketAddress(remoteIP.getAddress(), 12348);
+			InetSocketAddress remote = new InetSocketAddress(remoteIP.getAddress(), PORT);
 			clientSocket.connect(remote);
 			System.out.println("Client connected to " + remote.getAddress() + ":" + remote.getPort() + "\n");
-			while (true)
-				;
+			sendIntro();
+			if (classes != null) {
+				for (int i = 0; i < classes.length - 1; i++)
+					sendClass(classes[i]);
+				String taskClass = classes[classes.length - 1];
+				sendTask(taskClass);
+				try {
+					sendSerializedTask(TCPClient.class.getClassLoader().loadClass(taskClass).newInstance());
+				}
+				catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+					System.out.println("Error : Serialized Task sending : " + e.getMessage());
+				}
+				askForExecution();
+			} else sendResult();
 		}
 		catch (IOException e) {
 			System.out.println("Error : TCPClient Constructor");
@@ -74,10 +96,11 @@ public class TCPClient extends NetworkInterface {
 	/**
 	 * First packet
 	 */
-	public void intro() {
+	public void sendIntro() {
 		writeBuff.put(INTRO);
 		writeBuff.putShort(taskID);
 		writeBuff.putLong(0L);
+		sendBuff();
 	}
 
 	/**
@@ -126,26 +149,34 @@ public class TCPClient extends NetworkInterface {
 	 * 
 	 * @throws IOException
 	 */
-	public void sendSerializedTask(Task t) throws IOException {
+	public void sendSerializedTask(Object t) {
 		writeBuff.put(SERIALIZEDTASK);
 		writeBuff.putShort(taskID);
 		ByteArrayOutputStream bOut = new ByteArrayOutputStream();
-		ObjectOutputStream oOut = new ObjectOutputStream(bOut);
-		oOut.writeObject(t);
-		oOut.close();
+		ObjectOutputStream oOut;
+		try {
+			oOut = new ObjectOutputStream(bOut);
+			oOut.writeObject(t);
+			oOut.close();
+		}
+		catch (IOException e) {
+			System.out.println("Error : Serialized Task.");
+		}
 		writeBuff.putLong(bOut.toByteArray().length);
 		sendBuff();
 		Util.sendObject(clientSocket.socket(), t);
+		sendBuff();
 	}
 
 	/**
 	 * Asking for execution
 	 */
-	public void execute() {
+	public void askForExecution() {
 		writeBuff.put(EXEC);
 		writeBuff.putShort(taskID);
 		writeBuff.putLong(TIMEOUTLENGTH);
 		writeBuff.putInt(TIMEOUT);
+		sendBuff();
 	}
 
 	/**
@@ -153,12 +184,13 @@ public class TCPClient extends NetworkInterface {
 	 * 
 	 * @param error
 	 */
-	public void error(String error) {
+	public void sendError(String error) {
 		writeBuff.put(EXECERROR);
 		writeBuff.putShort(taskID);
 		Long n = (long) error.length() * 2;
 		writeBuff.putLong(n);
 		Util.bufferFromString(writeBuff, error);
+		sendBuff();
 	}
 
 	/**
@@ -167,25 +199,26 @@ public class TCPClient extends NetworkInterface {
 	 * @param obj
 	 * @throws IOException
 	 */
-	public void result(Serializable obj) throws IOException {
+	public void sendResult() throws IOException {
 		writeBuff.put(RESULT);
 		writeBuff.putShort(taskID);
 		ByteArrayOutputStream bOut = new ByteArrayOutputStream();
 		ObjectOutputStream oOut = new ObjectOutputStream(bOut);
-		oOut.writeObject(obj);
+		oOut.writeObject(result);
 		oOut.close();
 		writeBuff.putLong(bOut.toByteArray().length);
 		sendBuff();
-		Util.sendObject(clientSocket.socket(), obj);
+		Util.sendObject(clientSocket.socket(), result);
 	}
 
 	/**
 	 * Asking for end of connection
 	 */
-	public void end() {
+	public void askForEnd() {
 		writeBuff.put(END);
 		writeBuff.putShort(taskID);
 		writeBuff.putLong(0);
+		sendBuff();
 	}
 
 }

@@ -1,6 +1,5 @@
 package application;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import network.tcp.Server;
 import network.tcp.TCPClient;
@@ -10,28 +9,19 @@ import tasks.testTask;
 public class TestClient {
 
 	/**
+	 * 
 	 * @param args
-	 * @throws InterruptedException
-	 * @throws IOException
 	 */
-	public static void main(String[] args) throws InterruptedException, IOException {
+	public static void main(String[] args) {
 
 		// Server in order to get the result
 		Server TCPserver = new Server();
 		TCPserver.start();
 
-		TCPClient client = new TCPClient((short) 1337, new InetSocketAddress("192.168.1.27", 12348));
+		String[] classes = {"bin/tasks/Doublet.class","bin/tasks/Task.java"};
+		
+		TCPClient client = new TCPClient((short) 1337, "192.168.1.27", classes);
 		client.start();
-
-		Thread.sleep(1000);
-		client.intro();
-		client.error("TEST DEBUT");
-		client.sendBuff();
-		client.sendClass("bin/tasks/Doublet.class");
-		client.sendTask("bin/tasks/testTask.class");
-		client.sendSerializedTask(new testTask());
-		client.execute();
-		client.sendBuff();
 
 	}
 

@@ -1,6 +1,5 @@
 package application;
 
-import java.io.IOException;
 import network.tcp.Server;
 import network.udp.UDPConsumer;
 
@@ -8,10 +7,8 @@ public class TestServer {
 
 	/**
 	 * @param args
-	 * @throws InterruptedException
-	 * @throws IOException
 	 */
-	public static void main(String[] args) throws InterruptedException, IOException {
+	public static void main(String[] args) {
 
 		UDPConsumer udpT = new UDPConsumer();
 		udpT.start();
