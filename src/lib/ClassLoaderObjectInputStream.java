@@ -1,79 +1,36 @@
 package lib;
 
-/*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- * 
- *      http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectStreamClass;
 import java.io.StreamCorruptedException;
 
-/**
- * A special ObjectInputStream that loads a class based on a specified
- * <code>ClassLoader rather than the system default.
- * <p>
- * This is useful in dynamic container environments.
- *
- * @author Paul Hammant
- * @version $Id: ClassLoaderObjectInputStream.java 736890 2009-01-23 02:02:22Z niallp $
- * @since Commons IO 1.1
- */
 public class ClassLoaderObjectInputStream extends ObjectInputStream {
 
-    /** The class loader to use. */
-    private final NetworkClassLoader classLoader;
-
-    /**
-     * Constructs a new ClassLoaderObjectInputStream.
-     *
-     * @param classLoader  the ClassLoader from which classes should be loaded
-     * @param inputStream  the InputStream to work on
-     * @throws IOException in case of an I/O error
-     * @throws StreamCorruptedException if the stream is corrupted
-     */
-    public ClassLoaderObjectInputStream(
-            NetworkClassLoader classLoader, InputStream inputStream)
-            throws IOException, StreamCorruptedException {
-        super(inputStream);
-        this.classLoader = classLoader;
-    }
+	private final NetworkClassLoader	classLoader;
 
 	/**
-     * Resolve a class specified by the descriptor using the
-     * specified ClassLoader or the super ClassLoader.
-     *
-     * @param objectStreamClass  descriptor of the class
-     * @return the Class object described by the ObjectStreamClass
-     * @throws IOException in case of an I/O error
-     * @throws ClassNotFoundException if the Class cannot be found
-     */
-    @Override
-    protected Class<?> resolveClass(ObjectStreamClass objectStreamClass)
-            throws IOException, ClassNotFoundException {
-        
-        Class<?> clazz = classLoader.findClass(objectStreamClass.getName());
+	 * @param classLoader
+	 * @param inputStream
+	 * @throws IOException
+	 * @throws StreamCorruptedException
+	 */
+	public ClassLoaderObjectInputStream(NetworkClassLoader classLoader, InputStream inputStream) throws IOException, StreamCorruptedException {
+		super(inputStream);
+		this.classLoader = classLoader;
+	}
 
-        if (clazz != null) {
-            // the classloader knows of the class
-            return clazz;
-        } else {
-            // Otherwise, let the super classloader do it
-            return super.resolveClass(objectStreamClass);
-        }
-    }
+	/**
+	 * 
+	 */
+	@Override
+	public Class<?> resolveClass(ObjectStreamClass osc) throws IOException, ClassNotFoundException {
+
+		Class<?> tempClass = classLoader.findClass(osc.getName());
+
+		if (tempClass != null) return tempClass;
+		else return super.resolveClass(osc);
+
+	}
 }

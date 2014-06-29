@@ -18,7 +18,6 @@ public abstract class NetworkInterface extends Thread {
 	protected final static int	FREE			= 0;
 	protected final static int	BUSY			= 1;
 
-	protected final static int	PORT			= 12348;
-	protected final static String	REMOTEIP		= "129.104.221.49";
+	protected final static int	PORT			= 12347;
 
 }

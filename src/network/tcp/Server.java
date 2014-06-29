@@ -10,13 +10,19 @@ import network.NetworkInterface;
 
 public class Server extends NetworkInterface {
 
-	private ServerSocketChannel	serverSocket;
-	private LinkedList<TCPServer> socketsList;
+	private ServerSocketChannel		serverSocket;
+	private LinkedList<TCPServer>	socketsList;
 
+	/**
+	 * 
+	 */
 	public Server() {
 		socketsList = new LinkedList<TCPServer>();
 	}
-	
+
+	/**
+	 * 
+	 */
 	public void run() {
 		try {
 			serverSocket = ServerSocketChannel.open();

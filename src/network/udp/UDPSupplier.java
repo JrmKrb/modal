@@ -11,6 +11,10 @@ public class UDPSupplier extends NetworkInterface {
 
 	private static DatagramChannel	hostSocket;
 
+	/**
+	 * 
+	 */
+	@Override
 	public void run() {
 		try {
 			hostSocket = DatagramChannel.open();
@@ -41,8 +45,9 @@ public class UDPSupplier extends NetworkInterface {
 		}
 	}
 
-	/*
+	/**
 	 * Answer to a ping request
+	 * @param remote
 	 */
 	public static void pingAnswer(InetSocketAddress remote) {
 		try {

@@ -16,11 +16,15 @@ public class UDPConsumer extends NetworkInterface {
 	public final static int						FREE		= 0;
 	public final static int						BUSY		= 1;
 
+	/**
+	 * 
+	 */
+	@Override
 	public void run() {
 		try {
 			hostSocket = DatagramChannel.open();
 			hostSocket.bind(new InetSocketAddress(PORT));
-			System.out.println("UDP Consumer listening on "+hostSocket.getLocalAddress());
+			System.out.println("UDP Consumer listening on " + hostSocket.getLocalAddress());
 			ByteBuffer buff = ByteBuffer.allocate(22);
 			while (true) {
 				try {
@@ -51,6 +55,9 @@ public class UDPConsumer extends NetworkInterface {
 		}
 	}
 
+	/**
+	 * 
+	 */
 	public void whoIsOnline() {
 		try {
 			ByteBuffer writeBuff = ByteBuffer.allocate(22);
@@ -59,17 +66,19 @@ public class UDPConsumer extends NetworkInterface {
 			hostSocket.send(writeBuff, new InetSocketAddress("255.255.255.255", 12347));
 		}
 		catch (IOException e) {
-			System.out.println("ERREUR PINGER");
+			System.out.println("Error : Whoisonline");
 			e.printStackTrace();
 		}
 	}
 
-	/*
+	
+	/**
 	 * Answer to a ping request
+	 * @param remote
 	 */
 	public static void pingAnswer(InetSocketAddress remote) {
 		try {
-			// 0 si libre, 1 si busy TODO : Busy
+			// 0 if free, 1 if busy TODO : Busy
 			// TODO taskID
 			ByteBuffer buff = ByteBuffer.allocate(3);
 			buff.put((byte) FREE);
@@ -82,45 +91,9 @@ public class UDPConsumer extends NetworkInterface {
 		}
 	}
 
-	/*
-	 * Le Listener attend les requête Ping et les réponses aux ping
-	 */
-	private Thread	listener	= new Thread() {
-
-									public void run() {
-										System.out.println("LISTENER EN ATTENTE");
-										ByteBuffer buff = ByteBuffer.allocate(256);
-										while (true) {
-											try {
-												InetSocketAddress remote = (InetSocketAddress) hostSocket.receive(buff);
-												byte[] tab = new byte[buff.position()];
-												buff.flip();
-												buff.get(tab);
-												String received = new String(tab, StandardCharsets.UTF_16BE);
-												buff.rewind();
-												if (received.startsWith("WHOISONLINE")) {
-													System.out.println("WHOISONLINE RECU");
-													pingAnswer(remote);
-												} else {
-													int busy = buff.get();
-													int numberTasks = buff.getShort();
-													int[] tasks = new int[numberTasks];
-													for (int i = 0; i < numberTasks; i++) {
-														tasks[i] = buff.getShort(3 + 2 * i);
-													}
-													networkList.put(remote, busy);
-													System.out.println("RECEIVED ANSWERS FROM PING " + busy + " " + numberTasks);
-												}
-											}
-											catch (IOException e) {
-												e.printStackTrace();
-											}
-										}
-									}
-								};
-
-	/*
-	 * Clients need this to dispatch the work
+	
+	/**
+	 * @return
 	 */
 	public HashMap<InetSocketAddress, Integer> getNetworkList() {
 		return networkList;

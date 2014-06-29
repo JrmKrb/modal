@@ -18,7 +18,7 @@ public class TCPClient extends NetworkInterface {
 	private static ByteBuffer	writeBuff;
 	public SocketChannel		clientSocket;
 
-	private InetSocketAddress				remoteIP;
+	private InetSocketAddress	remoteIP;
 	private short				taskID;
 
 	/**
@@ -33,6 +33,9 @@ public class TCPClient extends NetworkInterface {
 		writeBuff = ByteBuffer.allocate(1024000);
 	}
 
+	/**
+	 * 
+	 */
 	public void run() {
 		try {
 			clientSocket = SocketChannel.open();

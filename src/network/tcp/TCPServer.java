@@ -12,18 +12,24 @@ import lib.NetworkClassLoader;
 import lib.Util;
 import network.NetworkInterface;
 import tasks.Task;
-import application.testClient;
+import application.TestClient;
 
 public class TCPServer extends NetworkInterface {
 
 	private SocketChannel	clientSocket;
 	private ByteBuffer		writeBuff;
 
+	/**
+	 * @param c
+	 */
 	public TCPServer(SocketChannel c) {
 		clientSocket = c;
 		writeBuff = ByteBuffer.allocate(1024000);
 	}
 
+	/**
+	 * 
+	 */
 	public void run() {
 		try {
 			DataInputStream dis = new DataInputStream(clientSocket.socket().getInputStream());
@@ -82,7 +88,7 @@ public class TCPServer extends NetworkInterface {
 					case RESULT:
 						System.out.println("READING RESULT PACKET");
 						in = new ClassLoaderObjectInputStream(classLoader, clientSocket.socket().getInputStream());
-						testClient.treatResult((Task) in.readObject());
+						TestClient.treatResult((Task) in.readObject());
 						messLength = 0;
 						break;
 					case END:
@@ -113,6 +119,12 @@ public class TCPServer extends NetworkInterface {
 		}
 	}
 
+	/**
+	 * @param s
+	 * @param length
+	 * @param nlc
+	 * @return
+	 */
 	public static Class<?> getClass(Socket s, int length, NetworkClassLoader nlc) {
 		byte[] bf = new byte[length];
 		try {

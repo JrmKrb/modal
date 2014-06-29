@@ -13,10 +13,22 @@ import tasks.Task;
 
 public class Util {
 
+	/**
+	 * Fill a ByteBuffer with a string
+	 * 
+	 * @param writeBuff
+	 * @param message
+	 */
 	public static void bufferFromString(ByteBuffer writeBuff, String message) {
 		writeBuff.put(message.getBytes(StandardCharsets.UTF_16BE));
 	}
 
+	/**
+	 * Return a FileChannel
+	 * 
+	 * @param path
+	 * @return
+	 */
 	public static FileChannel channelFromFile(String path) {
 		try {
 			return FileChannel.open(Paths.get(path));
@@ -27,6 +39,12 @@ public class Util {
 		return null;
 	}
 
+	/**
+	 * Send object o through socket s
+	 * 
+	 * @param s
+	 * @param o
+	 */
 	public static void sendObject(Socket s, Object o) {
 		try {
 			ObjectOutputStream out = new ObjectOutputStream(s.getOutputStream());
@@ -37,6 +55,13 @@ public class Util {
 		}
 	}
 
+	/**
+	 * Get an Object from Socket s, using an external ClassLoader for dependancies
+	 * 
+	 * @param s
+	 * @param classLoader
+	 * @return
+	 */
 	public static Object getObject(Socket s, NetworkClassLoader classLoader) {
 		try {
 			return (Object) new ClassLoaderObjectInputStream(classLoader, s.getInputStream()).readObject();
@@ -47,6 +72,13 @@ public class Util {
 		return null;
 	}
 
+	/**
+	 * Send a finished Task
+	 * 
+	 * @param t
+	 * @param remoteIP
+	 * @param taskID
+	 */
 	public static void sendResult(final Task t, InetSocketAddress remoteIP, short taskID) {
 		System.out.println("Trying to connect to " + remoteIP + "in order to send result.");
 		final TCPClient remoteConnection = new TCPClient(taskID, remoteIP);

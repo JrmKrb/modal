@@ -7,7 +7,7 @@ import network.tcp.TCPClient;
 import tasks.Task;
 import tasks.testTask;
 
-public class testClient {
+public class TestClient {
 
 	/**
 	 * @param args
@@ -20,9 +20,9 @@ public class testClient {
 		Server TCPserver = new Server();
 		TCPserver.start();
 
-		TCPClient client = new TCPClient((short) 1337, new InetSocketAddress("192.168.1.27",12348));
+		TCPClient client = new TCPClient((short) 1337, new InetSocketAddress("192.168.1.27", 12348));
 		client.start();
-		
+
 		Thread.sleep(1000);
 		client.intro();
 		client.error("TEST DEBUT");
@@ -32,12 +32,14 @@ public class testClient {
 		client.sendSerializedTask(new testTask());
 		client.execute();
 		client.sendBuff();
-		
-		
+
 	}
 
+	/**
+	 * @param readObject
+	 */
 	public static void treatResult(Task readObject) {
 		testTask temp = (testTask) readObject;
-		System.out.println("Le calcul distant a été effecuté. Le résultat est : " + temp.result);
+		System.out.println("External calculus done. Result : " + temp.result);
 	}
 }

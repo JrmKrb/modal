@@ -1,9 +1,10 @@
 package application;
+
 import java.io.IOException;
 import network.tcp.Server;
 import network.udp.UDPConsumer;
 
-public class testServer {
+public class TestServer {
 
 	/**
 	 * @param args
