@@ -1,6 +1,7 @@
 package network.tcp;
 
 import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.InetSocketAddress;
@@ -59,19 +60,43 @@ public class TCPClient extends NetworkInterface {
 					sendClass(classes[i]);
 				String taskClass = classes[classes.length - 1];
 				sendTask(taskClass);
+				waitForAck();
 				try {
 					sendSerializedTask(TCPClient.class.getClassLoader().loadClass(taskClass).newInstance());
+					waitForAck();
 				}
 				catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
 					System.out.println("Error : Serialized Task sending : " + e.getMessage());
 				}
 				askForExecution();
-			} else sendResult();
+				waitForAck();
+			} else {
+				sendResult();
+				waitForAck();
+			}
 		}
 		catch (IOException e) {
 			System.out.println("Error : TCPClient Constructor");
 			e.printStackTrace();
 		}
+	}
+
+	private void waitForAck() {
+		DataInputStream dis;
+		try {
+			dis = new DataInputStream(clientSocket.socket().getInputStream());
+			int type = dis.read();
+			if (type != ACK) System.out.println("Received packet but not ACK packet.");
+			int task = dis.readShort();
+			System.out.println("Received ACK packet for task n°" + task + ".");
+			long messLength = dis.readLong();
+			byte[] message = new byte[(int) messLength];
+			dis.read(message);
+		}
+		catch (IOException e) {
+			System.out.println("Error while waiting for ACK packet : " + e.getMessage());
+		}
+
 	}
 
 	/**
