@@ -1,31 +1,29 @@
 import java.io.IOException;
-
-import network.TCPServer;
+import java.net.InetAddress;
+import network.TCPClient;
 
 public class Test {
 
 	/**
 	 * @param args
 	 * @throws InterruptedException
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public static void main(String[] args) throws InterruptedException, IOException {
-//		TCPClient client = new TCPClient("129.104.252.48", (short) 1337);
-		TCPServer TCPserver = new TCPServer();
-		TCPserver.start();
-//		client.start();
-//		
-//		
-//		Thread.sleep(3000);
-//
-//
-//		client.serializedTask(new sumTask());
-//		
-//		
-//		Thread.sleep(3000);
-//		client.execute();
-//		client.sendBuff();
+
+		// TCPServer TCPserver = new TCPServer();
+		// TCPserver.start();
+		Thread.sleep(3000);
 		
+		TCPClient client = new TCPClient((short) 1337);
+		client.start();
+		Thread.sleep(3000);
+		client.intro();
+		client.error("DEBUT DE CONNEXION.");
+		client.sendBuff();
+		client.execute();
+		client.sendBuff();
+
 		// TCPClient.sendTask("bin/application/sumTask.class");
 
 	}

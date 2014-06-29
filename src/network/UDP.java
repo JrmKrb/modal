@@ -30,7 +30,7 @@ public class UDP {
 	public void whoIsOnline() {
 		try {
 			ByteBuffer writeBuff = ByteBuffer.allocate(22);
-			Message.bufferFromString(writeBuff, "WHOISONLINE");
+			Util.bufferFromString(writeBuff, "WHOISONLINE");
 			writeBuff.flip();
 			hostSocket.send(writeBuff, new InetSocketAddress("255.255.255.255",
 					12357));
