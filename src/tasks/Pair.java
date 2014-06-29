@@ -1,6 +1,6 @@
 package tasks;
 
-public class Doublet {
+public class Pair {
 
 	public int	a;
 	public int	b;
@@ -9,7 +9,7 @@ public class Doublet {
 	 * @param i
 	 * @param j
 	 */
-	public Doublet(int i, int j) {
+	public Pair(int i, int j) {
 		a = i;
 		b = j;
 	}
