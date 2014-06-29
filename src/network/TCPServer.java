@@ -4,13 +4,12 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.nio.channels.SocketChannel;
-import application.Server;
 import application.Task;
+import application.testClient;
 
 public class TCPServer extends Thread implements NetworkInterface {
 
 	private SocketChannel	clientSocket;
-	private Task			result	= null;
 
 	public TCPServer(SocketChannel c) {
 		clientSocket = c;
@@ -59,7 +58,7 @@ public class TCPServer extends Thread implements NetworkInterface {
 						long timeout;
 						System.out.println("Timeout : " + (timeout = dis.readInt()));
 						serializedTask.run();
-						result = serializedTask;
+						Util.sendResult(serializedTask, clientSocket.getRemoteAddress().toString(), tempTaskID);
 						messLength = 0;
 						break;
 					case EXECERROR:
@@ -71,7 +70,10 @@ public class TCPServer extends Thread implements NetworkInterface {
 						break;
 					case RESULT:
 						System.out.println("READING RESULT PACKET");
-						Util.sendResult(serializedTask, clientSocket.getRemoteAddress().toString(), tempTaskID);
+						in = new ClassLoaderObjectInputStream(classLoader, clientSocket.socket().getInputStream());
+						System.out.println("Try to read result : ");
+						testClient.treatResult((Task) in.readObject());
+						messLength = 0;
 						break;
 					case END:
 						System.out.println("READING END CONNECTION PACKET");
