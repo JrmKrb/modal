@@ -38,8 +38,7 @@ public class Util {
 
 	public static Object getObject(Socket s, NetworkClassLoader classLoader) {
 		try {
-			ClassLoaderObjectInputStream in = new ClassLoaderObjectInputStream(classLoader, s.getInputStream());
-			return (Object) in.readObject();
+			return (Object) new ClassLoaderObjectInputStream(classLoader, s.getInputStream()).readObject();
 		}
 		catch (IOException | ClassNotFoundException e) {
 			e.printStackTrace();
@@ -48,7 +47,7 @@ public class Util {
 	}
 
 	public static void sendResult(final Task t, InetSocketAddress remoteIP, short taskID) {
-		System.out.println("Tentative de connection sur "+remoteIP+".");
+		System.out.println("Tentative de connection sur " + remoteIP + ".");
 		final TCPClient remoteConnection = new TCPClient(taskID, remoteIP);
 		remoteConnection.start();
 		try {

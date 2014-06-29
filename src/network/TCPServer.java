@@ -10,10 +10,10 @@ import java.nio.channels.SocketChannel;
 import tasks.Task;
 import application.testClient;
 
-public class TCPServer extends Thread implements NetworkInterface {
+public class TCPServer extends NetworkInterface {
 
 	private SocketChannel	clientSocket;
-	private ByteBuffer writeBuff;
+	private ByteBuffer		writeBuff;
 
 	public TCPServer(SocketChannel c) {
 		clientSocket = c;
@@ -25,13 +25,13 @@ public class TCPServer extends Thread implements NetworkInterface {
 			DataInputStream dis = new DataInputStream(clientSocket.socket().getInputStream());
 			Task serializedTask = null;
 			NetworkClassLoader classLoader = new NetworkClassLoader(TCPServer.class.getClassLoader());
-			System.out.println("Serveur en attente d'un message.");
+			System.out.println("TCPServer waiting for message from " + clientSocket.getRemoteAddress());
 			while (true) {
 				byte tempType = dis.readByte();
 				short tempTaskID = dis.readShort();
 				System.out.println("taskID : " + tempTaskID + "\n");
 				long messLength = dis.readLong();
-				System.out.println("Taille du message : " + messLength);
+				System.out.println("Message length : " + messLength);
 				switch (tempType) {
 					case INTRO:
 						System.out.println("READING INTRO PACKET");
@@ -78,13 +78,15 @@ public class TCPServer extends Thread implements NetworkInterface {
 					case RESULT:
 						System.out.println("READING RESULT PACKET");
 						in = new ClassLoaderObjectInputStream(classLoader, clientSocket.socket().getInputStream());
-						System.out.println("Try to read result : ");
 						testClient.treatResult((Task) in.readObject());
 						messLength = 0;
 						break;
 					case END:
 						System.out.println("READING END CONNECTION PACKET");
 						// TODO endConnection
+						break;
+					default:
+						System.out.println("Wrong packet received. Nothing is done.");
 						break;
 				}
 
@@ -93,7 +95,7 @@ public class TCPServer extends Thread implements NetworkInterface {
 				byte[] message = new byte[(int) messLength];
 				dis.read(message);
 				System.out.println(new String(message, "UTF-16BE") + "\nPACKET RECEIVED => Waiting for another one\n\n");
-				ack(tempTaskID,clientSocket);
+				ack(tempTaskID, clientSocket);
 			}
 		}
 		catch (EOFException e) {
@@ -119,10 +121,10 @@ public class TCPServer extends Thread implements NetworkInterface {
 		return null;
 	}
 
-
 	/**
 	 * Envoi Acknowledgment
-	 * @throws IOException 
+	 * 
+	 * @throws IOException
 	 */
 	public void ack(short taskID, SocketChannel s) throws IOException {
 		writeBuff.put(ACK);

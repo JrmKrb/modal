@@ -11,7 +11,7 @@ import java.nio.channels.SocketChannel;
 import java.nio.file.Paths;
 import tasks.Task;
 
-public class TCPClient extends Thread implements NetworkInterface {
+public class TCPClient extends NetworkInterface {
 
 	private static ByteBuffer	writeBuff;
 	public SocketChannel		clientSocket;
@@ -42,7 +42,7 @@ public class TCPClient extends Thread implements NetworkInterface {
 				;
 		}
 		catch (IOException e) {
-			System.out.println("ERREUR CONSTRUCTEUR TCP CLIENT");
+			System.out.println("Error : TCPClient Constructor");
 			e.printStackTrace();
 		}
 	}
@@ -67,7 +67,7 @@ public class TCPClient extends Thread implements NetworkInterface {
 	}
 
 	/**
-	 * Début connection TCP
+	 * First packet
 	 */
 	public void intro() {
 		writeBuff.put(INTRO);
@@ -76,7 +76,7 @@ public class TCPClient extends Thread implements NetworkInterface {
 	}
 
 	/**
-	 * Envoi classes annexes
+	 * Dependancies
 	 * 
 	 * @param path
 	 */
@@ -97,7 +97,7 @@ public class TCPClient extends Thread implements NetworkInterface {
 	}
 
 	/**
-	 * Envoi Tâche
+	 * Task sender
 	 * 
 	 * @param path
 	 */
@@ -117,7 +117,7 @@ public class TCPClient extends Thread implements NetworkInterface {
 	}
 
 	/**
-	 * Envoi tâche sérialisée (avec données)
+	 * Serialized Task Sender
 	 * 
 	 * @throws IOException
 	 */
@@ -134,7 +134,7 @@ public class TCPClient extends Thread implements NetworkInterface {
 	}
 
 	/**
-	 * Exécution effectuée
+	 * Asking for execution
 	 */
 	public void execute() {
 		writeBuff.put(EXEC);
@@ -144,7 +144,7 @@ public class TCPClient extends Thread implements NetworkInterface {
 	}
 
 	/**
-	 * Erreur lors de l'exécution
+	 * If error
 	 * 
 	 * @param error
 	 */
@@ -157,7 +157,7 @@ public class TCPClient extends Thread implements NetworkInterface {
 	}
 
 	/**
-	 * Envoi du résultat
+	 * Sending result
 	 * 
 	 * @param obj
 	 * @throws IOException
@@ -175,7 +175,7 @@ public class TCPClient extends Thread implements NetworkInterface {
 	}
 
 	/**
-	 * Fin de connection
+	 * Asking for end of connection
 	 */
 	public void end() {
 		writeBuff.put(END);
