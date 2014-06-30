@@ -13,11 +13,10 @@ import network.NetworkInterface;
 
 public class UDPConsumer extends NetworkInterface {
 
-	private HashMap<String, Integer>	networkList	= new HashMap<String, Integer>();
+	private HashMap<String, Byte>	networkList	= new HashMap<String, Byte>();
 	private DatagramChannel				hostSocket;
-	public final static int				FREE		= 0;
-	public final static int				BUSY		= 1;
 	private InetSocketAddress			serverISA;
+	private byte state = FREE;
 
 	public UDPConsumer() {
 		try {
@@ -38,10 +37,13 @@ public class UDPConsumer extends NetworkInterface {
 	@Override
 	public void run() {
 		try {
+			System.out.println("AAA");
 			hostSocket = DatagramChannel.open();
+			hostSocket.socket().setBroadcast(true);
+			System.out.println("BBB");
 			hostSocket.bind(serverISA);
-			whoIsOnline();
 			System.out.println("UDP Consumer listening on " + hostSocket.getLocalAddress());
+			whoIsOnline();
 			ByteBuffer buff = ByteBuffer.allocate(22);
 			while (true) {
 				try {
@@ -52,7 +54,7 @@ public class UDPConsumer extends NetworkInterface {
 					String received = new String(tab, StandardCharsets.UTF_16BE);
 					buff.rewind();
 					if (!received.startsWith("WHOISONLINE")) {
-						int busy = buff.get();
+						byte busy = buff.get();
 						networkList.put(remote.getAddress().getHostAddress(), busy);
 						int nbTasks = buff.getShort();
 						short[] tasks = new short[nbTasks];
@@ -80,7 +82,8 @@ public class UDPConsumer extends NetworkInterface {
 			ByteBuffer writeBuff = ByteBuffer.allocate(22);
 			Util.bufferFromString(writeBuff, "WHOISONLINE");
 			writeBuff.flip();
-			hostSocket.send(writeBuff, new InetSocketAddress("255.255.255.255", 12347));
+			hostSocket.send(writeBuff, new InetSocketAddress("192.168.0.199", PORT));
+			System.out.println("whoIsOnline sent with "+hostSocket.getLocalAddress());
 		}
 		catch (IOException e) {
 			System.out.println("Error : Whoisonline");
@@ -95,10 +98,8 @@ public class UDPConsumer extends NetworkInterface {
 	 */
 	public void pingAnswer(InetSocketAddress remote) {
 		try {
-			// 0 if free, 1 if busy TODO : Busy
-			// TODO taskID
 			ByteBuffer buff = ByteBuffer.allocate(3);
-			buff.put((byte) FREE);
+			buff.put(state);
 			buff.putShort((short) 0);
 			buff.flip();
 			hostSocket.send(buff, remote);
@@ -111,7 +112,15 @@ public class UDPConsumer extends NetworkInterface {
 	/**
 	 * @return
 	 */
-	public HashMap<String, Integer> getNetworkList() {
+	public HashMap<String, Byte> getNetworkList() {
 		return networkList;
+	}
+
+	
+	/**
+	 * @param b
+	 */
+	public void setState(byte b) {
+		state = b;
 	}
 }
