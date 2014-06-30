@@ -19,6 +19,13 @@ public class Client extends NetworkClass {
 	@Override
 	public void run() {
 
+		try {
+			Thread.sleep(1000);
+		}
+		catch (InterruptedException e) {
+			// TODO Bloc catch généré automatiquement
+			e.printStackTrace();
+		}
 		for (String ip : networkList.keySet()) {
 			System.out.println("Creating a TCPClient to: " + ip);
 			TCPClient client = new TCPClient((short) 1337, ip, classes, task);

@@ -75,7 +75,7 @@ public class UDPConsumer extends NetworkClass {
 			ByteBuffer writeBuff = ByteBuffer.allocate(22);
 			Util.bufferFromString(writeBuff, "WHOISONLINE");
 			writeBuff.flip();
-			hostSocket.send(writeBuff, new InetSocketAddress("255.255.255.255", PORT));
+			hostSocket.send(writeBuff, new InetSocketAddress("192.168.0.199", PORT));
 			System.out.println("whoIsOnline sent with "+hostSocket.getLocalAddress());
 		}
 		catch (IOException e) {

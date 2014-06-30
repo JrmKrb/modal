@@ -69,22 +69,21 @@ public class TCPServer extends NetworkClass {
 						messLength = 0;
 						break;
 					case EXEC:
-						// TODO: check if everything is correct in this case
 						System.out.println("READING EXEC PACKET");
 						int timeOut = dis.readInt();
 						System.out.println("Timeout : " + timeOut);
 						Thread serializedTaskThread = new Thread(serializedTask);
-						long currentTime = java.lang.System.currentTimeMillis();
+						// long currentTime = java.lang.System.currentTimeMillis();
 						serializedTaskThread.start();
-						while (!serializedTaskThread.isAlive() && java.lang.System.currentTimeMillis() - currentTime < timeOut * 1000) {}
-						if (serializedTaskThread.isAlive()) {
-							serializedTaskThread.interrupt();
-							System.out.println("Timeout exceeded.");
-							m.sendError("Timeout exceeded.");
-						} else {
-							Thread resultSenderThread = new TCPClient((short) tempTaskID, (InetSocketAddress) clientSocket.getRemoteAddress(), serializedTask);
-							resultSenderThread.start();
-						}
+						/*
+						 * while (!serializedTaskThread.isAlive() && java.lang.System.currentTimeMillis() - currentTime
+						 * < timeOut * 1000) {} if (serializedTaskThread.isAlive()) { serializedTaskThread.interrupt();
+						 * System.out.println("Timeout exceeded."); m.sendError("Timeout exceeded."); } else {
+						 */
+						serializedTaskThread.join();
+						Thread resultSenderThread = new TCPClient((short) tempTaskID, (InetSocketAddress) clientSocket.getRemoteAddress(), serializedTask);
+						resultSenderThread.start();
+						// }
 						messLength = 0;
 						break;
 					case EXECERROR:
@@ -129,8 +128,10 @@ public class TCPServer extends NetworkClass {
 			System.out.println("IOEXception : " + e.getMessage());
 		}
 		catch (ClassNotFoundException e) {
-			System.out.println("Classe non trouvée :");
-			System.out.println(e.getMessage());
+			System.out.println("Classe non trouvée : "+e.getMessage());
+		}
+		catch (InterruptedException e) {
+			System.out.println("Thread Interrompu : "+e.getMessage());
 		}
 		finally {
 			try {

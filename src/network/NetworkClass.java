@@ -13,7 +13,7 @@ public abstract class NetworkClass extends Thread {
 	protected final static byte	END				= 8;
 
 	protected final static int	TIMEOUTLENGTH	= 4;
-	protected final static int	TIMEOUT			= 30;
+	protected final static int	TIMEOUT			= 5;
 
 	protected final static byte	FREE			= 0;
 	protected final static byte	BUSY			= 1;
