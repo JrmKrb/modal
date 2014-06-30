@@ -17,8 +17,21 @@ public class UDPConsumer extends NetworkClass {
 	private DatagramChannel				hostSocket;
 	private InetSocketAddress			serverISA;
 	private byte state = FREE;
+	private String supplierIP;
+	
 
 	public UDPConsumer() {
+		supplierIP = "255.255.255.255";
+		try {
+			serverISA = new InetSocketAddress(InetAddress.getLocalHost().getHostAddress(), PORT);
+		}
+		catch (UnknownHostException e) {
+			System.out.println(e.getMessage());
+		}
+	}	
+
+	public UDPConsumer(String ip) {
+		supplierIP = ip;
 		try {
 			serverISA = new InetSocketAddress(InetAddress.getLocalHost().getHostAddress(), PORT);
 		}
@@ -75,7 +88,7 @@ public class UDPConsumer extends NetworkClass {
 			ByteBuffer writeBuff = ByteBuffer.allocate(22);
 			Util.bufferFromString(writeBuff, "WHOISONLINE");
 			writeBuff.flip();
-			hostSocket.send(writeBuff, new InetSocketAddress("192.168.0.199", PORT));
+			hostSocket.send(writeBuff, new InetSocketAddress(supplierIP, PORT));
 			System.out.println("whoIsOnline sent with "+hostSocket.getLocalAddress());
 		}
 		catch (IOException e) {

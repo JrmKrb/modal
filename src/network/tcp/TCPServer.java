@@ -11,7 +11,7 @@ import lib.ClassLoaderObjectInputStream;
 import lib.NetworkClassLoader;
 import network.NetworkClass;
 import tasks.Task;
-import application.TestClient;
+import application.TestConsumer;
 
 public class TCPServer extends NetworkClass {
 
@@ -96,7 +96,7 @@ public class TCPServer extends NetworkClass {
 					case RESULT:
 						System.out.println("READING RESULT PACKET");
 						in = new ClassLoaderObjectInputStream(classLoader, clientSocket.socket().getInputStream());
-						TestClient.treatResult((Task) in.readObject());
+						TestConsumer.treatResult((Task) in.readObject());
 						messLength = 0;
 						break;
 					case END:

@@ -6,7 +6,7 @@ import network.udp.UDPConsumer;
 import tasks.Task;
 import tasks.TestTask;
 
-public class TestClient {
+public class TestConsumer {
 
 	/**
 	 * 
@@ -14,14 +14,17 @@ public class TestClient {
 	 * @throws InterruptedException 
 	 */
 	public static void main(String[] args) throws InterruptedException {
-
-		/* Server in order to get the result */
+		
+		// Server in order to get the result
 		Server TCPserver = new Server();
 		TCPserver.start();
 		
-		UDPConsumer udp = new UDPConsumer();
+		// IP of a supplier if broadcast does not work
+		String supplierIP = "129.104.254.38";
+		UDPConsumer udp = new UDPConsumer(supplierIP);
 		udp.start();
 		
+		// Lists of the classes to send, the last one must be the task
 		String[] classes = {"bin/tasks/Pair.class","bin/tasks/TestTask.class"};
 		Client TCPClient = new Client(classes, new TestTask(), udp.getNetworkList());
 		
@@ -29,6 +32,7 @@ public class TestClient {
 		TCPClient.start();
 
 		System.out.println("Everything is launched.");
+		
 	}
 
 	/**
