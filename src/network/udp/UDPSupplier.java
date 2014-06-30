@@ -7,9 +7,9 @@ import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.nio.charset.StandardCharsets;
-import network.NetworkInterface;
+import network.NetworkClass;
 
-public class UDPSupplier extends NetworkInterface {
+public class UDPSupplier extends NetworkClass {
 
 	private DatagramChannel		hostSocket;
 	private InetSocketAddress	serverISA;
@@ -19,7 +19,7 @@ public class UDPSupplier extends NetworkInterface {
 			serverISA = new InetSocketAddress(InetAddress.getLocalHost().getHostAddress(), PORT);
 		}
 		catch (UnknownHostException e) {
-			e.printStackTrace();
+			System.out.println(e.getMessage());
 		}
 	}
 
@@ -27,15 +27,12 @@ public class UDPSupplier extends NetworkInterface {
 		serverISA = isa;
 	}
 
-	/**
-	 * 
-	 */
 	@Override
 	public void run() {
 		try {
 			hostSocket = DatagramChannel.open();
 			hostSocket.bind(serverISA);
-			System.out.println("UDP Supplier listening on : " + hostSocket.getLocalAddress());
+			System.out.println("UDP Supplier listening on: " + hostSocket.getLocalAddress());
 			ByteBuffer buff = ByteBuffer.allocate(22);
 			while (true) {
 				try {
@@ -51,13 +48,12 @@ public class UDPSupplier extends NetworkInterface {
 					}
 				}
 				catch (IOException e) {
-					e.printStackTrace();
+					System.out.println(e.getMessage());
 				}
 			}
 		}
 		catch (IOException e) {
-			System.out.println("Error : UDP Supplier.");
-			// e.printStackTrace();
+			System.out.println("Error UDP Supplier: " + e.getMessage());
 		}
 	}
 
@@ -75,7 +71,7 @@ public class UDPSupplier extends NetworkInterface {
 			hostSocket.send(buff, remote);
 		}
 		catch (IOException e) {
-			e.printStackTrace();
+			System.out.println(e.getMessage());
 		}
 	}
 }

@@ -24,7 +24,6 @@ public class Util {
 	 * Return a FileChannel
 	 * 
 	 * @param path
-	 * @return
 	 */
 	public static FileChannel channelFromFile(String path) {
 		try {
@@ -53,11 +52,11 @@ public class Util {
 	}
 
 	/**
-	 * Get an Object from Socket s, using an external ClassLoader for dependancies
+	 * Get an Object from Socket s, using an external ClassLoader for dependencies
 	 * 
 	 * @param s
 	 * @param classLoader
-	 * @return
+	 * @return the object
 	 */
 	public static Object getObject(Socket s, NetworkClassLoader classLoader) {
 		try {

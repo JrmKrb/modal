@@ -21,9 +21,6 @@ public class ClassLoaderObjectInputStream extends ObjectInputStream {
 		this.classLoader = classLoader;
 	}
 
-	/**
-	 * 
-	 */
 	@Override
 	public Class<?> resolveClass(ObjectStreamClass osc) throws IOException, ClassNotFoundException {
 

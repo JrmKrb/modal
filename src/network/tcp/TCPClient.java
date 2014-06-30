@@ -10,10 +10,10 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.file.Paths;
 import lib.Util;
-import network.NetworkInterface;
+import network.NetworkClass;
 import tasks.Task;
 
-public class TCPClient extends NetworkInterface {
+public class TCPClient extends NetworkClass {
 
 	private static ByteBuffer	writeBuff;
 	public SocketChannel		clientSocket;
@@ -25,6 +25,12 @@ public class TCPClient extends NetworkInterface {
 	private Task				instanceOfTask;
 	private Task				result;
 
+	/**
+	 * @param taskID
+	 * @param remoteIP
+	 * @param classes
+	 * @param t
+	 */
 	public TCPClient(short taskID, InetSocketAddress remoteIP, String[] classes, Task t) {
 		writeBuff = ByteBuffer.allocate(1024000);
 		this.taskID = taskID;
@@ -33,6 +39,12 @@ public class TCPClient extends NetworkInterface {
 		instanceOfTask = t;
 	}
 
+	/**
+	 * @param taskID
+	 * @param remoteIP
+	 * @param classes
+	 * @param t
+	 */
 	public TCPClient(short taskID, String remoteIP, String[] classes, Task t) {
 		writeBuff = ByteBuffer.allocate(1024000);
 		this.taskID = taskID;
@@ -41,6 +53,11 @@ public class TCPClient extends NetworkInterface {
 		instanceOfTask = t;
 	}
 
+	/**
+	 * @param taskID
+	 * @param remoteIP
+	 * @param t
+	 */
 	public TCPClient(short taskID, InetSocketAddress remoteIP, Task t) {
 		writeBuff = ByteBuffer.allocate(1024000);
 		this.taskID = taskID;
@@ -48,9 +65,7 @@ public class TCPClient extends NetworkInterface {
 		result = t;
 	}
 
-	/**
-	 * 
-	 */
+	@Override
 	public void run() {
 		try {
 			clientSocket = SocketChannel.open();
@@ -69,45 +84,44 @@ public class TCPClient extends NetworkInterface {
 				}
 				String taskClass = classes[classes.length - 1];
 				sendTask(taskClass);
-				System.out.println("Task sent.");
+				System.out.println("Task sent");
 				waitForAck();
 				sendSerializedTask(instanceOfTask);
-				System.out.println("Serialized Task sent.");
+				System.out.println("Serialized Task sent");
 				waitForAck();
 				askForExecution();
-				System.out.println("Execution asked.");
+				System.out.println("Execution asked");
 				waitForAck();
 			} else {
 				sendResult();
-				System.out.println("Result sent.");
+				System.out.println("Result sent");
 				waitForAck();
 			}
 		}
 		catch (IOException e) {
-			System.out.println("Error : TCPClient Constructor");
-			e.printStackTrace();
+			System.out.println("Error: TCPClient");
+			System.out.println(e.getMessage());
 		}
 	}
 
-	private boolean waitForAck() {
-		System.out.println("Waiting for ACK.");
+	/**
+	 * @return
+	 * @throws IOException 
+	 */
+	private void waitForAck() throws IOException {
+		System.out.println("Waiting for ACK");
 		DataInputStream dis;
-		try {
 			dis = new DataInputStream(clientSocket.socket().getInputStream());
 			int type = dis.read();
-			if (type != ACK) System.out.println("Received packet but not ACK packet.");
+			if (type != ACK) {
+				System.out.println("Received packet but not ACK packet.");
+				throw new IOException("Packet is not a ACK packet");
+			}
 			int task = dis.readShort();
-			System.out.println("Received ACK packet for task n°" + task + ".");
+			System.out.println("Received ACK packet for task n°" + task);
 			long messLength = dis.readLong();
 			byte[] message = new byte[(int) messLength];
 			dis.read(message);
-			return true;
-		}
-		catch (IOException e) {
-			System.out.println("Error while waiting for ACK packet : " + e.getMessage());
-			return false;
-		}
-
 	}
 
 	/**
@@ -123,7 +137,7 @@ public class TCPClient extends NetworkInterface {
 			return true;
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			System.out.println(e.getMessage());
 			return false;
 		}
 	}
@@ -139,7 +153,7 @@ public class TCPClient extends NetworkInterface {
 	}
 
 	/**
-	 * Dependancies
+	 * Dependencies
 	 * 
 	 * @param path
 	 */
@@ -155,7 +169,7 @@ public class TCPClient extends NetworkInterface {
 		}
 		catch (IOException e) {
 			writeBuff.clear();
-			e.printStackTrace();
+			System.out.println(e.getMessage());
 		}
 	}
 
@@ -175,7 +189,7 @@ public class TCPClient extends NetworkInterface {
 		}
 		catch (IOException e) {
 			writeBuff.clear();
-			e.printStackTrace();
+			System.out.println(e.getMessage());
 		}
 	}
 

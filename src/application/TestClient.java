@@ -15,7 +15,7 @@ public class TestClient {
 	 */
 	public static void main(String[] args) throws InterruptedException {
 
-		// Server in order to get the result
+		/* Server in order to get the result */
 		Server TCPserver = new Server();
 		TCPserver.start();
 		

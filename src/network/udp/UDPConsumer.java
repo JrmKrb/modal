@@ -9,9 +9,9 @@ import java.nio.channels.DatagramChannel;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import lib.Util;
-import network.NetworkInterface;
+import network.NetworkClass;
 
-public class UDPConsumer extends NetworkInterface {
+public class UDPConsumer extends NetworkClass {
 
 	private HashMap<String, Byte>	networkList	= new HashMap<String, Byte>();
 	private DatagramChannel				hostSocket;
@@ -23,7 +23,7 @@ public class UDPConsumer extends NetworkInterface {
 			serverISA = new InetSocketAddress(InetAddress.getLocalHost().getHostAddress(), PORT);
 		}
 		catch (UnknownHostException e) {
-			e.printStackTrace();
+			System.out.println(e.getMessage());
 		}
 	}
 
@@ -31,9 +31,6 @@ public class UDPConsumer extends NetworkInterface {
 		serverISA = isa;
 	}
 
-	/**
-	 * 
-	 */
 	@Override
 	public void run() {
 		try {
@@ -64,30 +61,25 @@ public class UDPConsumer extends NetworkInterface {
 					}
 				}
 				catch (IOException e) {
-					e.printStackTrace();
+					System.out.println(e.getMessage());
 				}
 			}
 		}
 		catch (IOException e) {
-			System.out.println("Error : UDP server");
-			// e.printStackTrace();
+			System.out.println("Error: " + e.getMessage());
 		}
 	}
 
-	/**
-	 * 
-	 */
 	public void whoIsOnline() {
 		try {
 			ByteBuffer writeBuff = ByteBuffer.allocate(22);
 			Util.bufferFromString(writeBuff, "WHOISONLINE");
 			writeBuff.flip();
-			hostSocket.send(writeBuff, new InetSocketAddress("192.168.0.199", PORT));
+			hostSocket.send(writeBuff, new InetSocketAddress("255.255.255.255", PORT));
 			System.out.println("whoIsOnline sent with "+hostSocket.getLocalAddress());
 		}
 		catch (IOException e) {
-			System.out.println("Error : Whoisonline");
-			e.printStackTrace();
+			System.out.println("Error Whoisonline: " + e.getMessage());
 		}
 	}
 
@@ -105,12 +97,12 @@ public class UDPConsumer extends NetworkInterface {
 			hostSocket.send(buff, remote);
 		}
 		catch (IOException e) {
-			e.printStackTrace();
+			System.out.println(e.getMessage());
 		}
 	}
 
 	/**
-	 * @return
+	 * @return the networkList
 	 */
 	public HashMap<String, Byte> getNetworkList() {
 		return networkList;

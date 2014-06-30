@@ -16,9 +16,6 @@ public class NetworkClassLoader extends ClassLoader {
 		table = new HashMap<String, Class<?>>();
 	}
 
-	/**
-	 * 
-	 */
 	@Override
 	public Class<?> findClass(String name) {
 		return table.get(name);
@@ -33,10 +30,10 @@ public class NetworkClassLoader extends ClassLoader {
 
 	/**
 	 * @param b
-	 * @return
+	 * @return the load Class
 	 */
 	public Class<?> load(byte[] b) {
-		// We do not know the name of the class, hence "null" as a first argument
+		/* We do not know the name of the class, hence "null" as a first argument */
 		Class<?> c = defineClass(null, b, 0, b.length);
 		addClass(c);
 		return c;
