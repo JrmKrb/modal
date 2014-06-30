@@ -16,14 +16,13 @@ import application.TestClient;
 public class TCPServer extends NetworkClass {
 
 	private SocketChannel	clientSocket;
-	private ByteBuffer		writeBuff;
+	private MessageSender	m;
 
 	/**
 	 * @param c
 	 */
 	public TCPServer(SocketChannel c) {
 		clientSocket = c;
-		writeBuff = ByteBuffer.allocate(1024000);
 	}
 
 	@Override
@@ -38,6 +37,7 @@ public class TCPServer extends NetworkClass {
 				byte tempType = dis.readByte();
 				short tempTaskID = dis.readShort();
 				System.out.println("taskID : " + tempTaskID + "\n");
+				if (m == null) m = new MessageSender(ByteBuffer.allocate(1024000), tempTaskID, clientSocket);
 				long messLength = dis.readLong();
 				System.out.println("Message length: " + messLength);
 				switch (tempType) {
@@ -69,22 +69,21 @@ public class TCPServer extends NetworkClass {
 						messLength = 0;
 						break;
 					case EXEC:
-						//TODO: check if everything is correct in this case
+						// TODO: check if everything is correct in this case
 						System.out.println("READING EXEC PACKET");
 						int timeOut = dis.readInt();
 						System.out.println("Timeout : " + timeOut);
 						Thread serializedTaskThread = new Thread(serializedTask);
 						long currentTime = java.lang.System.currentTimeMillis();
 						serializedTaskThread.start();
-						while(!serializedTaskThread.isAlive() && java.lang.System.currentTimeMillis() - currentTime < timeOut * 1000){}
-						if(serializedTaskThread.isAlive()){
-						serializedTaskThread.interrupt();
-						System.out.println("Timeout exceeded");
-						//TODO: send error? do something?
-						}
-						else{
-						Thread resultSenderThread = new TCPClient((short) tempTaskID, (InetSocketAddress) clientSocket.getRemoteAddress(), serializedTask);
-						resultSenderThread.start();
+						while (!serializedTaskThread.isAlive() && java.lang.System.currentTimeMillis() - currentTime < timeOut * 1000) {}
+						if (serializedTaskThread.isAlive()) {
+							serializedTaskThread.interrupt();
+							System.out.println("Timeout exceeded.");
+							m.sendError("Timeout exceeded.");
+						} else {
+							Thread resultSenderThread = new TCPClient((short) tempTaskID, (InetSocketAddress) clientSocket.getRemoteAddress(), serializedTask);
+							resultSenderThread.start();
 						}
 						messLength = 0;
 						break;
@@ -120,11 +119,11 @@ public class TCPServer extends NetworkClass {
 				System.out.print("ENDPACKET");
 				System.out.println();
 				System.out.println();
-				if (running) ack(tempTaskID, clientSocket);
+				if (running) m.ack();
 			}
 		}
 		catch (EOFException e) {
-			System.out.println("Connexion terminée : "+e.getMessage());
+			System.out.println("Connexion terminée : " + e.getMessage());
 		}
 		catch (IOException e) {
 			System.out.println("IOEXception : " + e.getMessage());
@@ -133,11 +132,11 @@ public class TCPServer extends NetworkClass {
 			System.out.println("Classe non trouvée :");
 			System.out.println(e.getMessage());
 		}
-		finally{
-				try {
-					clientSocket.close();
-				} catch (IOException e) {
-				}
+		finally {
+			try {
+				clientSocket.close();
+			}
+			catch (IOException e) {}
 		}
 	}
 
@@ -157,19 +156,5 @@ public class TCPServer extends NetworkClass {
 			System.out.println(e.getMessage());
 		}
 		return null;
-	}
-
-	/**
-	 * Send Acknowledgment
-	 * 
-	 * @throws IOException
-	 */
-	public void ack(short taskID, SocketChannel s) throws IOException {
-		writeBuff.put(ACK);
-		writeBuff.putShort(taskID);
-		writeBuff.putLong(0L);
-		writeBuff.flip();
-		s.write(writeBuff);
-		writeBuff.clear();
 	}
 }
