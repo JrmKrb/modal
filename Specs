@@ -1,7 +1,7 @@
 Protocole
 
-Client : celui qui veut paralléliser une tâche à lui
-Serveur : celui qui fait les gros calculs et renvoie les résultats
+Consommateur : celui qui veut paralléliser une tâche à lui
+Fournisseur : celui qui fait les gros calculs et renvoie les résultats
 Port normalisé (serveur quand il écoute ; client quand il écoute) : 12347
 Time to live (durée avant laquelle on renvoie le message précédent, en supposant que le destinataire ne l’a pas reçu) :
 
