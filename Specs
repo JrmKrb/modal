@@ -1,0 +1,48 @@
+Protocole
+
+Consommateur : celui qui veut paralléliser une tâche à lui
+Fournisseur : celui qui fait les gros calculs et renvoie les résultats
+Port normalisé (serveur quand il écoute ; client quand il écoute) : 12347
+Time to live (durée avant laquelle on renvoie le message précédent, en supposant que le destinataire ne l’a pas reçu) :
+
+Possibilité : broadcast udp (pour découvrir les clients) sur le port 12347. Implémentation non obligatoire.
+(udp) Client envoie une demande sur le port 12347 "WHOISONLINE" UTF16BE
+(udp) Serveur répond soit 0 libre 1 occupé (pas de tâche supplémentaire) puis liste de tâche :
+un octet unsigned int | deux octets : nombre de tâches | identifiant des tâches, chacune sur deux octets
+
+Si libre :
+	Le client peut ouvrir une connexion tcp vers le serveur selon le protocole suivant.
+Si occupé :
+	Le client ne doit pas ouvrir de connexion tcp.
+
+Les messages sont composés des champs suivants :
+
+TYPE(1 OCTET UINT BE)    TASK_ID(2 OCTETS UINT BE) LENGTH(8 OCTETS UINT BE)    MSG
+0 (CS: introduction)   							 
+"Handshake"
+1 (C: classe simple)										classe en octets
+.class annexes : structures de données, bibliothèques...
+2 (C: classe task)										classe en octets
+Classe de l'algorithme utilisé, dont les calculs sont partagés. Cette classe contient un champ data.
+3 (CS: ack)
+4 (C: serialized task)
+Données data associées à la tâche. Ces données sont renseignées dans la Task t par t.data = data.
+5 (C: execute)   								 4  	entier (unsigned int timeout)	 
+Ordonne le lancement de la tâche.
+6 (S: exec error)   									 message d'erreur
+L'exécution n'a pas pu avoir lieu (manque des bibliothèques, erreur interne...).
+7 (S: serialized result)
+8 (CS: end)   								 
+Signifie la fin de la transaction.
+
+La classe subtask implémente l’interface Task (qui héritent les interfaces Runnable et Serializable). Cette interface est connue de tous :
+  package Tasks;
+  import java.io.Serializable;
+  public interface Task extends Serializable, Runnable {}
+
+TASK_ID : identifie uniquement la tâche aux yeux du client
+LENGTH : le nombre d’octets du MSG
+Un message est consistué au minimum du type, de task_id et de length. msg est vide si et seulement length vaut 0. Pour certains messages, la longueur est toujours nulle et le message toujours vide dans cette version du protocole.
+Après chaque envoi, on attend un ack de la part de l’autre.
+Si on n’a pas de ack, on tente de renvoyer.
+Si on n’a toujours pas de ack, on abandonne.
