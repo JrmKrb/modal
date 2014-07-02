@@ -20,8 +20,8 @@ public class TestConsumer {
 		TCPserver.start();
 		
 		// IP of a supplier if broadcast does not work
-		String supplierIP = "129.104.254.38";
-		UDPConsumer udp = new UDPConsumer(supplierIP);
+		String supplierIP = "192.168.1.33";
+		UDPConsumer udp = new UDPConsumer();
 		udp.start();
 		
 		// Lists of the classes to send, the last one must be the task

@@ -47,11 +47,10 @@ public class UDPConsumer extends NetworkClass {
 	@Override
 	public void run() {
 		try {
-			System.out.println("AAA");
 			hostSocket = DatagramChannel.open();
-			hostSocket.socket().setBroadcast(true);
-			System.out.println("BBB");
 			hostSocket.bind(serverISA);
+			hostSocket.socket().setBroadcast(true);
+			//hostSocket.socket().connect(new InetSocketAddress("255.255.255.255",PORT));
 			System.out.println("UDP Consumer listening on " + hostSocket.getLocalAddress());
 			whoIsOnline();
 			ByteBuffer buff = ByteBuffer.allocate(22);
@@ -89,7 +88,8 @@ public class UDPConsumer extends NetworkClass {
 			Util.bufferFromString(writeBuff, "WHOISONLINE");
 			writeBuff.flip();
 			hostSocket.send(writeBuff, new InetSocketAddress(supplierIP, PORT));
-			System.out.println("whoIsOnline sent with "+hostSocket.getLocalAddress());
+			//hostSocket.write(writeBuff);
+			System.out.println("whoIsOnline sent to "+supplierIP);
 		}
 		catch (IOException e) {
 			System.out.println("Error Whoisonline: " + e.getMessage());
