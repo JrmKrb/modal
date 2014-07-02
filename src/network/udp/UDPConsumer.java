@@ -50,10 +50,8 @@ public class UDPConsumer extends NetworkClass {
 	@Override
 	public void run() {
 		try {
-			System.out.println("AAA");
 			hostSocket = DatagramChannel.open();
 			hostSocket.socket().setBroadcast(true);
-			System.out.println("BBB");
 			hostSocket.bind(serverISA);
 			System.out.println("UDP Consumer listening on "
 					+ hostSocket.getLocalAddress());
