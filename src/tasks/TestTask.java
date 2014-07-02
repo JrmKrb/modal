@@ -9,10 +9,10 @@ public class TestTask implements Task {
 		System.out.println("Begin computation");
 		Pair d = new Pair(1, 10);
 		System.out.println("Pair allocated");
-		try {
-			Thread.sleep(10000);
-		}
-		catch (InterruptedException e) {}
+		//try {
+		//	Thread.sleep(10000);
+		//}
+		//catch (InterruptedException e) {}
 		result = d.a + d.b;
 		System.out.println("Computation done");
 	}

@@ -36,42 +36,40 @@ public class TCPServer extends NetworkClass {
 			while (running) {
 				byte tempType = dis.readByte();
 				short tempTaskID = dis.readShort();
-				System.out.println("taskID : " + tempTaskID + "\n");
 				if (m == null) m = new MessageSender(ByteBuffer.allocate(1024000), tempTaskID, clientSocket);
 				long messLength = dis.readLong();
-				System.out.println("Message length: " + messLength);
+				System.out.println(tempTaskID+" - Message length: " + messLength);
 				switch (tempType) {
 					case INTRO:
-						System.out.println("READING INTRO PACKET");
+						System.out.println(tempTaskID+" - READING INTRO PACKET");
 						break;
 					case SIMPLECLASS:
-						System.out.println("READING SIMPLECLASS PACKET");
+						System.out.println(tempTaskID+" - READING SIMPLECLASS PACKET");
 						Class<?> simpleClass = getClass(clientSocket.socket(), (int) messLength, classLoader);
 						classLoader.addClass(simpleClass);
-						System.out.println("simpleClass " + simpleClass.getName() + " loaded.");
+						System.out.println(tempTaskID+"simpleClass " + simpleClass.getName() + " loaded.");
 						messLength = 0;
 						break;
 					case TASKCLASS:
-						System.out.println("READING TASKCLASS PACKET");
+						System.out.println(tempTaskID+" - READING TASKCLASS PACKET");
 						Class<?> taskClass = getClass(clientSocket.socket(), (int) messLength, classLoader);
 						classLoader.addClass(taskClass);
-						System.out.println("taskClass " + taskClass.getName() + " loaded.");
+						System.out.println(tempTaskID+" - taskClass " + taskClass.getName() + " loaded.");
 						messLength = 0;
 						break;
 					case ACK:
-						System.out.println("READING ACK PACKET");
+						System.out.println(tempTaskID+" - READING ACK PACKET");
 						break;
 					case SERIALIZEDTASK:
-						System.out.println("READING SERIALIZEDTASK PACKET");
+						System.out.println(tempTaskID+" - READING SERIALIZEDTASK PACKET");
 						ClassLoaderObjectInputStream in = new ClassLoaderObjectInputStream(classLoader, clientSocket.socket().getInputStream());
-						System.out.println("Try to read object : ");
+						System.out.println(tempTaskID+" - Try to read object : ");
 						serializedTask = (Task) in.readObject();
 						messLength = 0;
 						break;
 					case EXEC:
-						System.out.println("READING EXEC PACKET");
+						System.out.println(tempTaskID+" - READING EXEC PACKET");
 						int timeOut = dis.readInt();
-						System.out.println("Timeout : " + timeOut);
 						Thread serializedTaskThread = new Thread(serializedTask);
 						// long currentTime = java.lang.System.currentTimeMillis();
 						serializedTaskThread.start();
@@ -87,24 +85,24 @@ public class TCPServer extends NetworkClass {
 						messLength = 0;
 						break;
 					case EXECERROR:
-						System.out.println("READING EXECERROR PACKET");
+						System.out.println(tempTaskID+" - READING EXECERROR PACKET");
 						byte[] message = new byte[(int) messLength];
 						dis.read(message);
 						System.err.println(new String(message, "UTF-16BE"));
 						messLength = 0;
 						break;
 					case RESULT:
-						System.out.println("READING RESULT PACKET");
+						System.out.println(tempTaskID+" - READING RESULT PACKET");
 						in = new ClassLoaderObjectInputStream(classLoader, clientSocket.socket().getInputStream());
 						TestConsumer.treatResult((Task) in.readObject());
 						messLength = 0;
 						break;
 					case END:
-						System.out.println("READING END CONNECTION PACKET");
+						System.out.println(tempTaskID+" - READING END CONNECTION PACKET");
 						running = false;
 						break;
 					default:
-						System.out.println("Wrong packet received. Nothing is done.");
+						System.out.println(tempTaskID+" - Wrong packet received. Nothing is done.");
 						break;
 				}
 
@@ -112,12 +110,9 @@ public class TCPServer extends NetworkClass {
 				if (messLength != 0) {
 					byte[] message = new byte[(int) messLength];
 					dis.read(message);
-					System.out.print(new String(message, "UTF-16BE"));
+					System.out.print(tempTaskID+" - "+new String(message, "UTF-16BE"));
 				}
-				System.out.println();
-				System.out.print("ENDPACKET");
-				System.out.println();
-				System.out.println();
+				System.out.println("ENDPACKET");
 				if (running) m.ack();
 			}
 		}

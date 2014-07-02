@@ -74,6 +74,8 @@ public class TCPClient extends NetworkClass {
 				for (int i = 0; i < classes.length - 1; i++) {
 					m.sendClass(classes[i]);
 					System.out.println("Class "+classes[i]+" sent.");
+					waitForAck();
+					waitForAck();
 				}
 				String taskClass = classes[classes.length - 1];
 				m.sendTask(taskClass);

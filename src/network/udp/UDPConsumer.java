@@ -8,34 +8,37 @@ import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.LinkedList;
+
 import lib.Util;
 import network.NetworkClass;
 
 public class UDPConsumer extends NetworkClass {
 
-	private HashMap<String, Byte>	networkList	= new HashMap<String, Byte>();
-	private DatagramChannel				hostSocket;
-	private InetSocketAddress			serverISA;
+	private HashMap<String, Byte> networkList = new HashMap<String, Byte>();
+	private DatagramChannel hostSocket;
+	private InetSocketAddress serverISA;
 	private byte state = FREE;
-	private String supplierIP;
-	
+	private LinkedList<String> suppliersIP;
 
 	public UDPConsumer() {
-		supplierIP = "255.255.255.255";
+		suppliersIP = new LinkedList<String>();
+		suppliersIP.add("255.255.255.255");
 		try {
-			serverISA = new InetSocketAddress(InetAddress.getLocalHost().getHostAddress(), PORT);
-		}
-		catch (UnknownHostException e) {
+			serverISA = new InetSocketAddress(InetAddress.getLocalHost()
+					.getHostAddress(), PORT);
+		} catch (UnknownHostException e) {
 			System.out.println(e.getMessage());
 		}
-	}	
+	}
 
-	public UDPConsumer(String ip) {
-		supplierIP = ip;
+	public UDPConsumer(LinkedList<String> ips) {
+		suppliersIP = ips;
+		suppliersIP.add("255.255.255.255");
 		try {
-			serverISA = new InetSocketAddress(InetAddress.getLocalHost().getHostAddress(), PORT);
-		}
-		catch (UnknownHostException e) {
+			serverISA = new InetSocketAddress(InetAddress.getLocalHost()
+					.getHostAddress(), PORT);
+		} catch (UnknownHostException e) {
 			System.out.println(e.getMessage());
 		}
 	}
@@ -47,16 +50,19 @@ public class UDPConsumer extends NetworkClass {
 	@Override
 	public void run() {
 		try {
+			System.out.println("AAA");
 			hostSocket = DatagramChannel.open();
-			hostSocket.bind(serverISA);
 			hostSocket.socket().setBroadcast(true);
-			//hostSocket.socket().connect(new InetSocketAddress("255.255.255.255",PORT));
-			System.out.println("UDP Consumer listening on " + hostSocket.getLocalAddress());
+			System.out.println("BBB");
+			hostSocket.bind(serverISA);
+			System.out.println("UDP Consumer listening on "
+					+ hostSocket.getLocalAddress());
 			whoIsOnline();
 			ByteBuffer buff = ByteBuffer.allocate(22);
 			while (true) {
 				try {
-					InetSocketAddress remote = (InetSocketAddress) hostSocket.receive(buff);
+					InetSocketAddress remote = (InetSocketAddress) hostSocket
+							.receive(buff);
 					byte[] tab = new byte[buff.position()];
 					buff.flip();
 					buff.get(tab);
@@ -64,20 +70,20 @@ public class UDPConsumer extends NetworkClass {
 					buff.rewind();
 					if (!received.startsWith("WHOISONLINE")) {
 						byte busy = buff.get();
-						networkList.put(remote.getAddress().getHostAddress(), busy);
+						networkList.put(remote.getAddress().getHostAddress(),
+								busy);
 						int nbTasks = buff.getShort();
 						short[] tasks = new short[nbTasks];
 						for (int i = 0; i < nbTasks; i++)
 							tasks[i] = buff.getShort();
-						System.out.println("Answer received from " + remote + " : " + busy);
+						System.out.println("Answer received from " + remote
+								+ " : " + busy);
 					}
-				}
-				catch (IOException e) {
+				} catch (IOException e) {
 					System.out.println(e.getMessage());
 				}
 			}
-		}
-		catch (IOException e) {
+		} catch (IOException e) {
 			System.out.println("Error: " + e.getMessage());
 		}
 	}
@@ -85,13 +91,16 @@ public class UDPConsumer extends NetworkClass {
 	public void whoIsOnline() {
 		try {
 			ByteBuffer writeBuff = ByteBuffer.allocate(22);
-			Util.bufferFromString(writeBuff, "WHOISONLINE");
-			writeBuff.flip();
-			hostSocket.send(writeBuff, new InetSocketAddress(supplierIP, PORT));
-			//hostSocket.write(writeBuff);
-			System.out.println("whoIsOnline sent to "+supplierIP);
-		}
-		catch (IOException e) {
+			for (String supplierIP : suppliersIP) {
+				Util.bufferFromString(writeBuff, "WHOISONLINE");
+				writeBuff.flip();
+				hostSocket.send(writeBuff, new InetSocketAddress(supplierIP,
+						PORT));
+				System.out.println("whoIsOnline sent to "
+						+ supplierIP+"/"+PORT);
+				writeBuff.clear();
+			}
+		} catch (IOException e) {
 			System.out.println("Error Whoisonline: " + e.getMessage());
 		}
 	}
@@ -108,8 +117,7 @@ public class UDPConsumer extends NetworkClass {
 			buff.putShort((short) 0);
 			buff.flip();
 			hostSocket.send(buff, remote);
-		}
-		catch (IOException e) {
+		} catch (IOException e) {
 			System.out.println(e.getMessage());
 		}
 	}
@@ -121,7 +129,6 @@ public class UDPConsumer extends NetworkClass {
 		return networkList;
 	}
 
-	
 	/**
 	 * @param b
 	 */
