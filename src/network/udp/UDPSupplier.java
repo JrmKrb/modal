@@ -42,10 +42,9 @@ public class UDPSupplier extends NetworkClass {
 					buff.get(tab);
 					String received = new String(tab, StandardCharsets.UTF_16BE);
 					buff.rewind();
-					if (received.startsWith("WHOISONLINE")) {
-						System.out.println("WHOISONLINE received by : " + remote);
+					System.out.println("UDP packet received from "+remote+" : "+received);
+					if (received.startsWith("WHOISONLINE"))
 						pingAnswer(remote);
-					}
 				}
 				catch (IOException e) {
 					System.out.println(e.getMessage());
